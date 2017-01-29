@@ -1,0 +1,13 @@
+Milestone 1 Instructions:
+Include a link to the Rmd file that created it in your GitHub repo, and 2. a link to the source of your original data. Please put your name on the first page of the document. The document will include the following information:
+
+Basic information: Project title, your name, email address
+Overview and Motivation: Why did you undertake this particular project? What inspired you, what are your background and research interests that may have influenced your decision?
+Project Objectives: What is the primary focal question that you are trying to answer? What would you like to learn and accomplish?
+Data: from where and how are you acquiring your data? Provide a link to your data source.
+Data Wrangling: Do you anticipate that there will be extensive data cleaning / reshaping / extraction? Are there questions you will need to calculate in your data (e.g., perhaps you have height and weight, but not BMI)? How will you implement this particular data wrangling step?
+Exploratory Analysis: Which methods / visualizations are you planning to use to explore your tidy dataset?
+Analysis: How are you planning to analyze your data? _ Schedule, keeping in mind the due dates listed above for the intermediate and final milestones, make a plan to meet these deadlines. Write these in terms of weekly tasks / goals.
+As a ballpark, your proposal should be about 2-3 pages of text, along with shells of the tables and figures that you plan. You could even include some preliminary data acquisition / analysis steps.
+
+After we receive your proposals we will find a time to meet with you to discuss your proposal and also to help guide you through the rest of the analysis.
