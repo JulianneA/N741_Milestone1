@@ -20,7 +20,9 @@ Ideally, for this project I would like to reducing the number of variables to st
 Data:
 -----
 
-The CDC has allowed open access to the [NSFG survey results from 1973-2015](https://www.cdc.gov/nchs/nsfg/index.htm). These data are available for download from a CDC operated FTP site. For the sake of space, I have only provided links to the most recent iteration of the survey, 2013-2015. The original data for the 2013-2015 survey is available [here](ftp://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NSFG/2013_2015_FemRespData.dat) The CDC's SAS setup file for this dataset is available [here](ftp://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NSFG/sas/2013_2015_FemRespSetup.sas) CDC guidance for the use of this data (ie, variable names, past surveys, etc.) is available [here](https://www.cdc.gov/nchs/nsfg/nsfg_2013_2015_puf.htm)
+The CDC has allowed open access to the [NSFG survey results from 1973-2015](https://www.cdc.gov/nchs/nsfg/index.htm). These data are available for download from a CDC operated FTP site. For the sake of space, I have only provided links to the most recent iteration of the survey, 2013-2015. The original data for the 2013-2015 survey is available [here](ftp://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NSFG/2013_2015_FemRespData.dat)
+The CDC's SAS setup file for this dataset is available [here](ftp://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NSFG/sas/2013_2015_FemRespSetup.sas)
+CDC guidance for the use of this data (ie, variable names, past surveys, etc.) is available [here](https://www.cdc.gov/nchs/nsfg/nsfg_2013_2015_puf.htm)
 
 Data Wrangling:
 ---------------
@@ -29,7 +31,9 @@ The results of the NSFG projects are available in a .dat file with setup program
 
     dm "dexport new 'H:\SAS 9.4 Temporary Files\2013_2015_FemRespData.csv' ";
 
-I attempted this process with the most recent NSFG data (2013-2015), and was successful. This was a particularly arduous way of reformatting the dataset, but I don't yet trust my R-abilities to import the .SAS setup file and the dat file without destroying it. Any guidance on this would be appreciated. Note: To save space, all R-chunk code in the markdown has been printed to PDF but eval has been set to FALSE, so no output is produced.
+I attempted this process with the most recent NSFG data (2013-2015), and was successful. This was a particularly arduous way of reformatting the dataset, but I don't yet trust my R-abilities to import the .SAS setup file and the dat file without destroying it. Any guidance on this would be appreciated.
+
+Note: To save space, all R-chunk code in the markdown has been printed to PDF but eval has been set to FALSE, so no output is produced.
 
 ``` r
 # loading tidyverse and haven
@@ -70,19 +74,23 @@ This data would require slight cleaning and recoding for my use. My understandin
 Exploratory Analysis:
 ---------------------
 
-After the blue bag lecture on Friday, I'm very interested in plotting the data three dimensionally to display the data as a *contraceptive method x year x demographic characteristic, such as age or race* to be able to track how the patterns are altered over time. The interactive graph utilized by Hans Rosling in the gapminder video that displayed 2 independent variables (lifespan and income) on each axis and had the size and color of the points indicate the population and region is an interesting way to display a large number of variables at once. I am brainstorming ways of displaying method frequency, year, and demographic characterics all at once, and I believe that animating the graph to scroll through years would allowing the changing utilization to be easily visualized. Currently, the CDC has published these data as pie charts or bar charts, but these visualizations do not collapse across the datasets to look at trends over time.
+After the blue bag lecture on Friday, I'm very interested in plotting the data three dimensionally to display the data as a *contraceptive method x year x demographic characteristic, such as age or race* to be able to track how the patterns are altered over time.
+
+The interactive graph utilized by Hans Rosling in the gapminder video that displayed 2 independent variables (lifespan and income) on each axis and had the size and color of the points indicate the population and region is an interesting way to display a large number of variables at once. I am brainstorming ways of displaying method frequency, year, and demographic characterics all at once, and I believe that animating the graph to scroll through years would allowing the changing utilization to be easily visualized. Currently, the CDC has published these data as pie charts or bar charts, but these visualizations do not collapse across the datasets to look at trends over time.
 
 Analysis:
 ---------
 
-*Below is a list of goals for analysis along with self-imposed deadlines:* \*\*\_Goal 1:\_Data Wrangling\*\* A lot of my work will go into the initial data importing and wrangling to allow multiple NSFG datasets to be analyzed together. This step will be time-consuming, but it will need to be done meticulously to ensure that my final dataset is not flawed. I plan to have my final dataset merged and re-coded (as needed) by Sunday, February 5<sup>th</sup>.
+*Below is a list of goals for analysis along with self-imposed deadlines:*
+
+***Goal 1: Data Wrangling*** A lot of my work will go into the initial data importing and wrangling to allow multiple NSFG datasets to be analyzed together. This step will be time-consuming, but it will need to be done meticulously to ensure that my final dataset is not flawed. I plan to have my final dataset merged and re-coded (as needed) by Sunday, February 5<sup>th</sup>.
 
 ***Goal 2:*** I plan to analyze the data from February 5<sup>th</sup>-February 19<sup>th</sup>. The codebooks from the CDC are helpful to familiarize myself with the datasets, but these datasets are so sparse, that I need to obtain some information regarding the frequency of responses for contraceptive variables to ensure that I am not including datasets that appear to be inaccurate (ie: did respondents not disclose this information in earlier cycles?).
 
-\*\*\_Goal 3:\_Visualization\*\* I plan on investing a great deal of time into the visualization step, since I believe that when working with so many variables, the interesting, effective dissemination of results depends on good visualization. This step will be the final week of "processing type" work before I begin writing my manuscript. Therefore, I will have functional visualizations completed before March 1<sup>st</sup>.
+***Goal 3: Visualization*** I plan on investing a great deal of time into the visualization step, since I believe that when working with so many variables, the interesting, effective dissemination of results depends on good visualization. This step will be the final week of "processing type" work before I begin writing my manuscript. Therefore, I will have functional visualizations completed before March 1<sup>st</sup>.
 
-***MILESTONE 2*:Working Prototype** The next milestone is due on March 15<sup>th</sup>, and I will spend from March 1<sup>st</sup>-15<sup>th</sup> working on this manuscript.
+***MILESTONE 2: Working Prototype*** The next milestone is due on March 15<sup>th</sup>, and I will spend from March 1<sup>st</sup>-15<sup>th</sup> working on this manuscript.
 
 ***Manuscript Rewrites*** After discussing my project with a professor to get feedback, I plan to rewrite my manuscript and edit any analysis steps and implement any suggestions to improve the visualization of the data. The analysis changes will occur from March 15<sup>th</sup>-April1<sup>st</sup>. Visualization changes will take the next week, and from April 7<sup>th</sup> to the 15<sup>th</sup>, I will conduct the final manuscript edits.
 
-***MILESTONE 3*:Final Manuscript** Due Wednesday, April 19<sup>the</sup>.
+***MILESTONE 3: Final Manuscript*** Due Wednesday, April 19<sup>th</sup>.
