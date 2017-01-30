@@ -1,14 +1,12 @@
 ---
-title: "Milestone 1: CDC's National Survey of Family Growth"
+title: 'Milestone 1: CDC''s National Survey of Family Growth'
 author: "Julianne; Julianne.Ammirati@emory.edu"
-date: '`r format(Sys.Date(), "%B %d, %Y")`'#"January 27, 2017"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
 output:
-  pdf_document: default
-   # includes:
-      #in_header: Header.tex
-  html_document: default
-  word_document: default
   github_document: default
+  html_document: default
+  pdf_document: default
+  word_document: default
 ---
 #### The code used to generate this report is available from [my GitHub Account](https://github.com/JulianneA/N741_Milestone1)
 
@@ -20,7 +18,7 @@ Prior to returning to nursing school, I served as a clinical coordinator for a p
 
 ##Project Objectives: 
 [comment]: <> (What is the primary focal question that you are trying to answer? What would you like to learn and accomplish?)
-Given the variability of women's access to care in the current healthcare system, I am interested in examining patterns of contraceptive utilization as a function of various socio-demographic factors and how the utilization has changed over time. The National Survey of Family Growth (NSFG) is the largest publicly accessibly dataset I could locate that surveys women regarding their contraceptive use. I do not plan to analyze the entire dataset, but rather, I plan to conduct this exploratory analysis by focusing mostly on family planning variables (coded as Section E of the dataset in the three most recent iterations). 
+Given the variability of women's access to care in the current healthcare system, I am interested in examining patterns of contraceptive utilization as a function of various socio-demographic factors and how the utilization has changed over time. The National Survey of Family Growth (NSFG) is the largest publicly accessibly dataset I could locate that surveys women regarding their contraceptive use. I do not plan to analyze the entire dataset, but rather, I plan to conduct this exploratory analysis by focusing mostly on family planning variables (coded as Section E of the dataset in the three most recent iterations). A lot of work has been done in this area, but I think that (1) it could use some updated visualization methods to make it more easily digestible, and (2) by breaking it down into various groups based on race/age/demographics, I think the data can tell a better story about the groups that are being left behind as contraceptive methods improve.
 
 Ideally, for this project I would like to reducing the number of variables to strictly sociodemographic variables and contraceptive variables, but expand the number of cases to include the survey results from additional years (downloading the NSFG data for all surveys dating back to 1973). This would better allow me to follow trends over time, to examine how certain contraceptive options have become more or less utilized.
 
