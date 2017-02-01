@@ -1,9 +1,11 @@
 Milestone 1: CDC's National Survey of Family Growth
 ================
 Julianne; <Julianne.Ammirati@emory.edu>
-January 30, 2017
+February 01, 2017
 
-#### The code used to generate this report is available from [my GitHub Account](https://github.com/JulianneA/N741_Milestone1)
+#### The code used to generate this report is available from my GitHub Account:
+
+<https://github.com/JulianneA/N741_Milestone1>
 
 Overview and Motivation:
 ------------------------
@@ -20,9 +22,18 @@ Ideally, for this project I would like to reducing the number of variables to st
 Data:
 -----
 
-The CDC has allowed open access to the [NSFG survey results from 1973-2015](https://www.cdc.gov/nchs/nsfg/index.htm). These data are available for download from a CDC operated FTP site. For the sake of space, I have only provided links to the most recent iteration of the survey, 2013-2015. The original data for the 2013-2015 survey is available [here](ftp://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NSFG/2013_2015_FemRespData.dat)
-The CDC's SAS setup file for this dataset is available [here](ftp://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NSFG/sas/2013_2015_FemRespSetup.sas)
-CDC guidance for the use of this data (ie, variable names, past surveys, etc.) is available [here](https://www.cdc.gov/nchs/nsfg/nsfg_2013_2015_puf.htm)
+The CDC has allowed open access to the NSFG survey results from 1973-2015:
+<https://www.cdc.gov/nchs/nsfg/index.htm>.
+
+These data are available for download from a CDC operated FTP site. For the sake of space, I have only provided links to the most recent iteration of the survey, 2013-2015.
+The original data for the 2013-2015 survey is available here:
+<ftp://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NSFG/2013_2015_FemRespData.dat>
+
+The CDC's SAS setup file for this dataset is available here:
+<ftp://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NSFG/sas/2013_2015_FemRespSetup.sas>
+
+CDC guidance for the use of this data (ie, variable names, past surveys, etc.) is available here:
+<https://www.cdc.gov/nchs/nsfg/nsfg_2013_2015_puf.htm>
 
 Data Wrangling:
 ---------------
@@ -81,7 +92,7 @@ The interactive graph utilized by Hans Rosling in the gapminder video that displ
 Analysis:
 ---------
 
-*Below is a list of goals for analysis along with self-imposed deadlines:*
+*Below is a list of goals for analysis along with course/self-imposed deadlines:*
 
 ***Goal 1: Data Wrangling*** A lot of my work will go into the initial data importing and wrangling to allow multiple NSFG datasets to be analyzed together. This step will be time-consuming, but it will need to be done meticulously to ensure that my final dataset is not flawed. I plan to have my final dataset merged and re-coded (as needed) by Sunday, February 5<sup>th</sup>.
 
