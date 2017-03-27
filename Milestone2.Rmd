@@ -1,0 +1,1060 @@
+---
+title: "Milestone2"
+author: "Julianne; Julianne.Ammirati@emory.edu"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+  github_document: default
+---
+```{r, echo=FALSE, include=FALSE}
+# loading tidyverse and haven libraries... not sure if this is needed.... 
+library(tidyverse) #dplier-merging datasets
+library(haven)
+library(shiny)
+```
+#### The CDC has allowed open access to the NSFG survey results from 1973-2015:   
+[https://www.cdc.gov/nchs/nsfg/index.htm](https://www.cdc.gov/nchs/nsfg/index.htm).  
+
+#### The code used to generate this report is available from my GitHub Account:    
+[https://github.com/JulianneA/N741_Milestone1](https://github.com/JulianneA/N741_Milestone1)
+
+# Initial Exploration of Available Data
+```{r, eval=FALSE, include=FALSE}
+# read in the comma delimited (CSV) formatted dataset
+# **NOTE**: This dataset has the column names as the 1st row of the file thanks to SAS gymnastics
+NSFG2013 <- read_csv("2013_2015_FemRespData.csv", col_names=TRUE)
+NSFG2011 <- read_csv("2011_2013_FemRespData.csv", col_names=TRUE)
+NSFG2006 <- read_csv("2006_2010_FemRespData.csv", col_names=TRUE)
+NSFG2002 <- read_csv("2002_FemRespData.csv", col_names=TRUE)
+NSFG1995 <- read_csv("1995_FemRespData.csv", col_names=TRUE)
+NSFG1988 <- read_csv("1988_FemRespData.csv", col_names=TRUE)
+NSFG1982 <- read_csv("1982_FemRespData.csv", col_names=TRUE)
+NSFG1976 <- read_csv("1976_FemRespData.csv", col_names=TRUE)
+NSFG1973 <- read_csv("1973_FemRespData.csv", col_names=TRUE)
+```
+```{r, eval=FALSE, include=FALSE}
+###PULL OUT SUBSET OF 2013 DATASET
+NSFG2013_subset <- select(NSFG2013,
+                      CASEID,
+                      AGE_R,
+                      MARSTAT,
+                      HIGRADE,
+                      DEGREES,
+                      PARMARR,
+                      PREGNOWQ,
+                      MAYBPREG,
+                      NPREGS_S,
+                      EVERSEX,
+                      RHADSEX,
+                      YNOSEX,
+                      SEDBC,
+                      SEDBCG,
+                      SEDBCSX,
+                      SEDWHBC,
+                      SEDWHBCG,
+                      SEDWBCSX,
+                      HYST,
+                      OVAREM,
+                      OTHR,
+                      PILL,
+                      #NORPLANT,
+                      CONDOM,
+                      VASECTMY,
+                      #DIAFRAGM,
+                      DEPOPROV,
+                      WIDRAWAL,
+                      RHYTHM,
+                      SDAYCBDS,
+                      TEMPSAFE,
+                      #WOCONDOM,
+                      #FOAMALON,
+                      #JELCRMAL,
+                      #CERVLCAP,
+                      #SUPPOSIT,
+                      #TODAYSPG,
+                      #EVIUDTYP1, #IUD,
+                      #LUNELLE,
+                      PATCH,
+                      RING,
+                      OTHRMETH01,
+                      ECTIMESX,
+                      FIRSMETH1,
+                      CURRMETH1,
+                      CURRMETH2,
+                      CURRMETH3,
+                      CURRMETH4,
+                      ACASILANG,
+                      AGER,
+                      HISPANIC,
+                      RACE,
+                      PARITY,
+                      CURR_INS,
+                      METRO,
+                      RELIGION,
+                      LABORFOR,
+                      POVERTY,
+                      TOTINCR,
+                      PUBASSIS,
+                      CMINTVW,
+                      INTVWYEAR,
+                      ABORTION) # column name
+
+#Code variables from 2013 that are not in this dataset
+NSFG2013_subset$NORPLANT <- NA
+NSFG2013_subset$DIAFRAGM <- NA
+NSFG2013_subset$WOCONDOM <- NA
+NSFG2013_subset$FOAMALON <- NA
+NSFG2013_subset$JELCRMAL <- NA
+NSFG2013_subset$CERVLCAP <- NA
+NSFG2013_subset$SUPPOSIT <- NA
+NSFG2013_subset$TODAYSPG <- NA
+NSFG2013_subset$LUNELLE <- NA
+
+#Recode variable names for substitutes
+NSFG2013_subset$IUD <- NSFG2013$EVIUDTYP1 
+
+```
+```{r, eval=FALSE, include=FALSE}
+###PULL OUT SUBSET OF 2011 DATASET
+NSFG2011_subset <- select(NSFG2011,
+                      CASEID,
+                      AGE_R,
+                      MARSTAT,
+                      HIGRADE,
+                      DEGREES,
+                      PARMARR,
+                      PREGNOWQ,
+                      MAYBPREG,
+                      NPREGS_S,
+                      EVERSEX,
+                      RHADSEX,
+                      YNOSEX,
+                      SEDBC,
+                      SEDBCG,
+                      SEDBCSX,
+                      SEDWHBC,
+                      SEDWHBCG,
+                      SEDWBCSX,
+                      HYST,
+                      OVAREM,
+                      OTHR,
+                      PILL,
+                      #NORPLANT,
+                      CONDOM,
+                      VASECTMY,
+                      #DIAFRAGM,
+                      DEPOPROV,
+                      WIDRAWAL,
+                      RHYTHM,
+                      #SDAYCBDS,
+                      TEMPSAFE,
+                      #WOCONDOM,
+                      #FOAMALON,
+                      #JELCRMAL,
+                      #CERVLCAP,
+                      #SUPPOSIT,
+                      #TODAYSPG,
+                      #EVIUDTYP1, #IUD,
+                      #LUNELLE,
+                      PATCH,
+                      RING,
+                      OTHRMETH01,
+                      ECTIMESX,
+                      FIRSMETH1,
+                      CURRMETH1,
+                      CURRMETH2,
+                      CURRMETH3,
+                      CURRMETH4,
+                      ACASILANG,
+                      AGER,
+                      HISPANIC,
+                      RACE,
+                      PARITY,
+                      CURR_INS,
+                      METRO,
+                      RELIGION,
+                      LABORFOR,
+                      POVERTY,
+                      TOTINCR,
+                      PUBASSIS,
+                      CMINTVW,
+                      INTVWYEAR,
+                      ABORTION) # column name
+
+#Code variables from 2013 that are not in this dataset
+NSFG2011_subset$NORPLANT <- NA
+NSFG2011_subset$DIAFRAGM <- NA
+NSFG2011_subset$WOCONDOM <- NA
+NSFG2011_subset$FOAMALON <- NA
+NSFG2011_subset$JELCRMAL <- NA
+NSFG2011_subset$SUPPOSIT <- NA
+NSFG2011_subset$TODAYSPG <- NA
+NSFG2011_subset$LUNELLE <- NA
+NSFG2011_subset$SDAYCBDS <- NA
+NSFG2011_subset$IUD <- NA
+NSFG2011_subset$CERVLCAP <- NA
+
+
+#Recode variable names for substitutes
+###NONE!
+
+```
+```{r, eval=FALSE, include=FALSE}
+NSFG2006_subset <- select(NSFG2006,
+                      CASEID,
+                      AGE_R,
+                      MARSTAT,
+                      HIGRADE,
+                      DEGREES,
+                      PARMARR,
+                      PREGNOWQ,
+                      MAYBPREG,
+                      NPREGS_S,
+                      EVERSEX,
+                      RHADSEX,
+                      YNOSEX,
+                      SEDBC,
+                      SEDBCG,
+                      SEDBCSX,
+                      #SEDWHBC,
+                      #SEDWHBCG,
+                      #SEDWBCSX,
+                      #EVERHYST,
+                      #EVEROVRS, #OVAREM,
+                      #EVEROTHR,
+                      PILL,
+                      #NORPLANT,
+                      CONDOM,
+                      VASECTMY,
+                      #DIAFRAGM,
+                      DEPOPROV,
+                      WIDRAWAL,
+                      RHYTHM,
+                      #SDAYCBDS,
+                      TEMPSAFE,
+                      #WOCONDOM,
+                      #FOAMALON,
+                      #JELCRMAL,
+                      #CERVLCAP,
+                      #SUPPOSIT,
+                      #TODAYSPG,
+                      #EVIUDTYP1, #IUD,
+                      LUNELLE,
+                      PATCH,
+                      RING,
+                      OTHRMETH01,
+                      ECTIMESX,
+                      FIRSMETH1,
+                      CURRMETH1,
+                      CURRMETH2,
+                      CURRMETH3,
+                      CURRMETH4,
+                      ACASILANG,
+                      AGER,
+                      HISPANIC,
+                      RACE,
+                      PARITY,
+                      #COVERHOW01,
+                      #METRO,
+                      #RELCURR,
+                      #LABORFOR,
+                      #POVERTY,
+                      #TOTINC,
+                      CURR_INS,
+                      CMINTVW,
+                      POVERTY,
+                      LABORFOR,
+                      METRO,
+                      TOTINCR,
+                      RELIGION,
+                      PUBASSIS,
+                      ABORTION)
+                      #PUBASSIS,
+                      #CMINTVW)
+                      #INTVWYEAR) # column name
+
+#Code variables from 2013 that are not in this dataset
+NSFG2006_subset$SEDWHBC <- NA
+NSFG2006_subset$SEDWHBCG <- NA
+NSFG2006_subset$SEDWBCSX <- NA
+NSFG2006_subset$SDAYCBDS <- NA
+NSFG2006_subset$INTVWYEAR <- NA
+NSFG2006_subset$NORPLANT <- NA
+NSFG2006_subset$DIAFRAGM <- NA
+NSFG2006_subset$WOCONDOM <- NA
+NSFG2006_subset$JELCRMAL <- NA
+NSFG2006_subset$FOAMALON <- NA
+NSFG2006_subset$SUPPOSIT <- NA
+NSFG2006_subset$CERVLCAP <- NA
+NSFG2006_subset$TODAYSPG <- NA
+NSFG2006_subset$IUD <- NA
+#NSFG2006_subset$PUBASSIS <- NA
+
+#Recode variable names for substitutes
+NSFG2006_subset$HYST <- NSFG2006$EVERHYST
+NSFG2006_subset$OVAREM <- NSFG2006$EVEROVRS
+NSFG2006_subset$OTHR <- NSFG2006$EVEROTHR
+```
+```{r, eval=FALSE, include=FALSE}
+NSFG2002_subset <- select(NSFG2002,
+                      CASEID,
+                      AGE_R,
+                      MARSTAT,
+                      HIGRADE,
+                      DEGREES,
+                      PARMARR,
+                      PREGNOWQ,
+                      MAYBPREG,
+                      #NPREGS_S,
+                      EVERSEX,
+                      RHADSEX,
+                      YNOSEX,
+                      SEDBC,
+                      SEDBCG,
+                      SEDBCSX,
+                      #SEDWHBC,
+                      #SEDWHBCG,
+                      #SEDWBCSX,
+                      #EVERHYST,
+                      #EVEROVRS,
+                      #OVAREM,
+                      #EVEROTHR,
+                      PILL,
+                      NORPLANT,
+                      CONDOM,
+                      VASECTMY,
+                      DIAFRAGM,
+                      DEPOPROV,
+                      WIDRAWAL,
+                      RHYTHM,
+                      #SDAYCBDS,
+                      TEMPSAFE,
+                      WOCONDOM,
+                      FOAMALON,
+                      JELCRMAL,
+                      CERVLCAP,
+                      SUPPOSIT,
+                      TODAYSPG,
+                      IUD, #EVIUDTYP1,
+                      LUNELLE,
+                      PATCH,
+                      #RING,
+                      #OTHRMETH01,
+                      ECTIMESX,
+                      #FIRSMETH1,
+                      CURRMETH1,
+                      CURRMETH2,
+                      CURRMETH3,
+                      CURRMETH4,
+                      ACASILANG,
+                      AGER,
+                      HISPANIC,
+                      RACE,
+                      PARITY,
+                      #CURR_INS,
+                      METRO,
+                      RELIGION,
+                      LABORFOR,
+                      POVERTY,
+                      TOTINCR,
+                      PUBASSIS,
+                      CMINTVW,
+                      #INSURANC,
+                      #FIRSMETH01,
+                      #OTHRMETH,
+                      #PREGNUM,
+                      ABORTION)
+                      #INTVWYEAR) # column name
+
+#Code variables from 2013 that are not in this dataset
+NSFG2002_subset$SEDWHBC <- NA
+NSFG2002_subset$SEDWHBCG <- NA
+NSFG2002_subset$SEDWBCSX <- NA
+NSFG2002_subset$SDAYCBDS <- NA
+NSFG2002_subset$INTVWYEAR <- NA
+NSFG2002_subset$RING <- NA
+
+#Recode variable names for substitutes
+NSFG2002_subset$OVAREM <- NSFG2002$EVEROVRS
+NSFG2002_subset$HYST <- NSFG2002$EVERHYST
+NSFG2002_subset$OTHR <- NSFG2002$EVEROTHR
+NSFG2002_subset$NPREGS_S <- NSFG2002$PREGNUM
+NSFG2002_subset$OTHRMETH01 <- NSFG2002$OTHRMETH
+NSFG2002_subset$FIRSMETH1 <- NSFG2002$FIRSMETH01
+NSFG2002_subset$CURR_INS <- NSFG2002$INSURANC
+
+NSFG2002_subset$CURR_INS[NSFG2002$INSURANC==1] <- 4
+NSFG2002_subset$CURR_INS[NSFG2002$INSURANC==2] <- 1
+NSFG2002_subset$CURR_INS[NSFG2002$INSURANC==3] <- 2
+NSFG2002_subset$CURR_INS[NSFG2002$INSURANC==4] <- 3
+
+```
+```{r, eval=FALSE, include=FALSE}
+NSFG1995_subset <- select(NSFG1995,
+                      CASEID,
+                      #AGE_R,
+                      #MARSTAT,
+                      HIGRADE,
+                      #DEGREES,
+                      #PARMARR,
+                      PREGNOWQ,
+                      MAYBPREG,
+                      #NPREGS_S,
+                      EVERSEX,
+                      RHADSEX,
+                      #YNOSEX,
+                      #SEDBC,
+                      #SEDBCG,
+                      #SEDBCSX,
+                      #SEDWHBC,
+                      #SEDWHBCG,
+                      #SEDWBCSX,
+                      HYST,
+                      #OVAREM,
+                      OTHR,
+                      PILL,
+                      NORPLANT,
+                      CONDOM,
+                      VASECTMY,
+                      DIAFRAGM,
+                      DEPOPROV,
+                      WIDRAWAL,
+                      RHYTHM,
+                      #SDAYCBDS,
+                      TEMPSAFE,
+                      WOCONDOM,
+                      FOAMALON,
+                      JELCRMAL,
+                      CERVLCAP,
+                      SUPPOSIT,
+                      TODAYSPG,
+                      IUD, #EVIUDTYP1,
+                      #LUNELLE,
+                      #PATCH,
+                      #RING,
+                      #OTHRMETH01,
+                      #ECTIMESX,
+                      #FIRSMETH1,
+                      #CURRMETH1,
+                      #CURRMETH2,
+                      #CURRMETH3,
+                      #CURRMETH4,
+                      #ACASILANG,
+                      #AGER,
+                      HISPANIC,
+                      RACE,
+                      #PARITY,
+                      #CURR_INS,
+                      METRO,
+                      RELIGION,
+                      LABORFOR,
+                      POVERTY,
+                      TOTINCR,
+                      #OTHRMETH,
+                      ##PREGNUM,
+                      #OVARECT,
+                      #METHOD1,
+                      #A_DOI,
+                      #SPANENG,
+                      #MTHLSTS1,
+                      #MTHLSTS0,
+                      #SEXEDGRD,
+                      #SEXINST,
+                      #YNOSEX3,
+                      #PARMAR,
+                      #HAVEDEG,
+                      #AGE,
+                      ABORTION)
+                      #PUBASSIS,
+                      #CMINTVW)
+                      #INTVWYEAR) # column name
+
+#Code variables from 2013 that are not in this dataset
+NSFG1995_subset$SEDWHBC <- NA
+NSFG1995_subset$SEDWHBCG <- NA
+NSFG1995_subset$SEDWBCSX <- NA
+NSFG1995_subset$SDAYCBDS <- NA
+NSFG1995_subset$INTVWYEAR <- NA
+NSFG1995_subset$RING <- NA
+NSFG1995_subset$SEDBCSX <- NA
+NSFG1995_subset$LUNELLE <- NA
+NSFG1995_subset$PATCH <- NA
+NSFG1995_subset$ECTIMESX <- NA
+NSFG1995_subset$AGER <- NA
+NSFG1995_subset$CURR_INS <- NA
+NSFG1995_subset$PUBASSIS <- NA
+NSFG1995_subset$METRO <- NA
+NSFG1995_subset$PARITY <- NA
+#NSFG1995_subset$HISPGRP <- NA
+#NSFG1995_subset$MARITAL <- NA
+NSFG1995_subset$CURRMETH3 <- NA
+NSFG1995_subset$CURRMETH4 <- NA
+NSFG1995_subset$NPREGS_S <- NA
+NSFG1995_subset$FIRSMETH1 <- NA
+#Recode variable names for substitutes
+NSFG1995_subset$OVAREM <- NSFG1995$OVARECT
+NSFG1995_subset$OTHRMETH01 <- NSFG1995$OTHRMETH
+
+#NSFG1995_subset$MARSTAT <- NSFG1995_subset$FMARITAL
+NSFG1995_subset$AGE_R <- NSFG1995$AGE
+NSFG1995_subset$DEGREES <- NSFG1995$HAVEDEG
+NSFG1995_subset$PARMARR <- NSFG1995$PARMAR
+NSFG1995_subset$YNOSEX <- NSFG1995$YNOSEX3
+NSFG1995_subset$SEDBC <- NSFG1995$SEXINST
+NSFG1995_subset$SEDBCG <- NSFG1995$SEXEDGRD
+NSFG1995_subset$CURRMETH1 <- NSFG1995$MTHLSTS0
+NSFG1995_subset$CURRMETH2 <- NSFG1995$MTHLSTS1
+NSFG1995_subset$ACASILANG <- NSFG1995$SPANENG
+NSFG1995_subset$CMINTVW <- NSFG1995$A_DOI
+
+NSFG1995_subset$MARSTAT[NSFG1995$MARSTAT==1] <- 1
+NSFG1995_subset$MARSTAT[NSFG1995$MARSTAT==2] <- 3
+NSFG1995_subset$MARSTAT[NSFG1995$MARSTAT==3] <- 4
+NSFG1995_subset$MARSTAT[NSFG1995$MARSTAT==4] <- 5
+NSFG1995_subset$MARSTAT[NSFG1995$MARSTAT==5] <- 6
+
+```
+```{r, eval=FALSE, include=FALSE}
+NSFG1988_subset <- select(NSFG1988,
+                      HISPANIC,
+                      RACE,
+                      PARITY,
+                      #CURR_INS,
+                      METRO,
+                      RELIGION,
+                      LABORFOR,
+                      POVERTY,
+                      ABORTION)
+                      #F_93)
+
+#Code variables from 2013 that are not in this dataset
+NSFG1988_subset$SEDWHBC <- NA
+NSFG1988_subset$SEDWHBCG <- NA
+NSFG1988_subset$SEDWBCSX <- NA
+NSFG1988_subset$SDAYCBDS <- NA
+NSFG1988_subset$INTVWYEAR <- NA
+NSFG1988_subset$RING <- NA
+NSFG1988_subset$SEDBCSX <- NA
+NSFG1988_subset$LUNELLE <- NA
+NSFG1988_subset$PATCH <- NA
+NSFG1988_subset$ECTIMESX <- NA
+NSFG1988_subset$AGER <- NA
+NSFG1988_subset$CURR_INS <- NA
+NSFG1988_subset$RHADSEX <- NA
+NSFG1988_subset$NORPLANT <- NA
+NSFG1988_subset$WOCONDOM <- NA
+NSFG1988_subset$CERVLCAP <- NA
+NSFG1988_subset$DEPOPROV <- NA
+NSFG1988_subset$MAYBPREG <- NA
+NSFG1988_subset$CASEID <- 1988
+NSFG1988_subset$ACASILANG <- NA
+NSFG1988_subset$CURRMETH2 <- NA
+NSFG1988_subset$CURRMETH3 <- NA
+NSFG1988_subset$CURRMETH4 <- NA
+NSFG1988_subset$DEGREES <- NA
+NSFG1988_subset$PARMARR <- NA
+NSFG1988_subset$YNOSEX <- NA
+
+
+#Recode variable names for substitutes
+NSFG1988_subset$OVAREM <- NSFG1988$D20P1
+NSFG1988_subset$NPREGS_S <- NSFG1988$PREGNUM
+NSFG1988_subset$SEDBC <- NSFG1988$A9D
+NSFG1988_subset$SEDBCG <- NSFG1988$A_11
+NSFG1988_subset$AGE_R <- NSFG1988$A_5
+NSFG1988_subset$CURRMETH1 <- NSFG1988$BOX33
+NSFG1988_subset$OTHRMETH01 <- NSFG1988$CMETHQ
+NSFG1988_subset$FIRSMETH1 <- NSFG1988$METHOD1
+NSFG1988_subset$CMINTVW <- NSFG1988$CMOIMO
+#NSFG1988_subset$PUBASSIS <- F92E
+NSFG1988_subset$PUBASSIS <- NA
+NSFG1988_subset$MARSTAT <- NSFG1988$RMARITAL
+NSFG1988_subset$HIGRADE <- NSFG1988$A_12
+NSFG1988_subset$PREGNOWQ <- NSFG1988$B_1
+NSFG1988_subset$EVERSEX <- NSFG1988$C_5
+NSFG1988_subset$HYST <- NSFG1988$D20P3
+
+NSFG1988_subset$OTHR <- NSFG1988$D20P5
+NSFG1988_subset$PILL <- NSFG1988$CMETHH
+NSFG1988_subset$CONDOM <- NSFG1988$CMETHA
+NSFG1988_subset$VASECTMY <- NSFG1988$CMETHN
+NSFG1988_subset$DIAFRAGM <- NSFG1988$CMETHC
+
+NSFG1988_subset$WIDRAWAL <- NSFG1988$CMETHP
+NSFG1988_subset$RHYTHM <- NSFG1988$CMETHI
+NSFG1988_subset$TEMPSAFE <- NSFG1988$CMETHJ
+NSFG1988_subset$FOAMALON <- NSFG1988$CMETHE
+NSFG1988_subset$JELCRMAL <- NSFG1988$CMETHG
+
+NSFG1988_subset$SUPPOSIT <- NSFG1988$CMETHL
+NSFG1988_subset$TODAYSPG <- NSFG1988$CMETHM
+NSFG1988_subset$IUD <- NSFG1988$CMETHF
+NSFG1988_subset$TOTINCR <- NSFG1988$F_93
+```
+```{r, eval=FALSE, include=FALSE}
+NSFG1982_subset <- select(NSFG1982,
+                      #PARITY,
+                      #CURR_INS,
+                      METRO,
+                      #RELIGION,
+                      LABORFOR,
+                      POVERTY,
+                      #AGE,
+                      #MARITAL,
+                     # F10,
+                      #B1,
+                      #B8_B9,
+                     # B11,
+                      #A4D,
+                      #A6,
+                      #D-7,
+                      PILL,
+                      CONDOM,
+                      RHYTHM,
+                      IUD)
+
+#Code variables from 2013 that are not in this dataset
+NSFG1982_subset$SEDWHBC <- NA
+NSFG1982_subset$SEDWHBCG <- NA
+NSFG1982_subset$SEDWBCSX <- NA
+NSFG1982_subset$SDAYCBDS <- NA
+NSFG1982_subset$INTVWYEAR <- NA
+NSFG1982_subset$RING <- NA
+NSFG1982_subset$SEDBCSX <- NA
+NSFG1982_subset$LUNELLE <- NA
+NSFG1982_subset$PATCH <- NA
+NSFG1982_subset$ECTIMESX <- NA
+NSFG1982_subset$AGER <- NA
+NSFG1982_subset$CURR_INS <- NA
+NSFG1982_subset$RHADSEX <- NA
+NSFG1982_subset$NORPLANT <- NA
+NSFG1982_subset$WOCONDOM <- NA
+NSFG1982_subset$CERVLCAP <- NA
+NSFG1982_subset$DEPOPROV <- NA
+NSFG1982_subset$MAYBPREG <- NA
+NSFG1982_subset$CMINTVW <- NA
+NSFG1982_subset$TODAYSPG <- NA
+NSFG1982_subset$OTHR <- NA
+NSFG1982_subset$OVAREM <- NA
+NSFG1982_subset$CASEID <- 1982
+NSFG1982_subset$ACASILANG <- NA
+NSFG1982_subset$CURRMETH2 <- NA
+NSFG1982_subset$CURRMETH3 <- NA
+NSFG1982_subset$CURRMETH4 <- NA
+NSFG1982_subset$DEGREES <- NA
+NSFG1982_subset$HYST <- NA
+NSFG1982_subset$PARITY <- NA
+NSFG1982_subset$PARMARR <- NA
+NSFG1982_subset$VASECTMY <- NA
+NSFG1982_subset$YNOSEX <- NA
+
+
+#Recode variable names for substitutes
+NSFG1982_subset$RACE <- NSFG1982$SRRACE
+NSFG1982_subset$ABORTION <- NSFG1982$PCT_A
+NSFG1982_subset$HISPANIC <- NSFG1982$SPANISH2
+NSFG1982_subset$DIAFRAGM <- NSFG1982$DIAPHRAM
+NSFG1982_subset$WIDRAWAL <- NSFG1982$WITHDRAW
+NSFG1982_subset$TEMPSAFE <- NSFG1982$NFPTEMP
+NSFG1982_subset$FOAMALON <- NSFG1982$FOAM
+NSFG1982_subset$JELCRMAL <- NSFG1982$JELCREAM
+NSFG1982_subset$SUPPOSIT <- NSFG1982$SUPPOSIT
+NSFG1982_subset$NPREGS_S <- NSFG1982$B8_B9
+NSFG1982_subset$SEDBC <- NSFG1982$A4D
+NSFG1982_subset$SEDBCG <- NSFG1982$A6
+NSFG1982_subset$AGE_R <- NSFG1982$AGE
+
+NSFG1982_subset$CURRMETH1 <- NSFG1982$RECENT
+NSFG1982_subset$OTHRMETH01 <- NSFG1982$OTHER
+NSFG1982_subset$FIRSMETH1 <- NSFG1982$METHOD1
+#NSFG1982_subset$PUBASSIS <- NSFG1982$F69D
+NSFG1982_subset$PUBASSIS <- NA
+NSFG1982_subset$MARSTAT <- NSFG1982$MARITAL
+NSFG1982_subset$HIGRADE <- NSFG1982$F10
+NSFG1982_subset$PREGNOWQ <- NSFG1982$B1
+NSFG1982_subset$EVERSEX <- NSFG1982$B11
+NSFG1982_subset$RELIGION <- NSFG1982$F43
+NSFG1982_subset$TOTINCR <- NSFG1982$F70
+```
+```{r, eval=FALSE, include=FALSE}
+###########SAVE SUBSETS AND DELETE LARGE CSVS THAT ARE SLOWING MY MAC DOWN!
+
+# Save the 2013
+saveRDS(NSFG2013_subset, "NRSG2013sub.rds")
+#NSFG2013sub <- readRDS("NRSG2013sub.rds")
+
+
+# Save the 2011
+saveRDS(NSFG2011_subset, "NRSG2011sub.rds")
+#NSFG2011sub <- readRDS("NRSG2011sub.rds")
+
+# Save the 2006
+saveRDS(NSFG2006_subset, "NRSG2006sub.rds")
+#NSFG2006sub <- readRDS("NRSG2006sub.rds")
+
+# Save the 2002
+saveRDS(NSFG2002_subset, "NRSG2002sub.rds")
+#NSFG2002sub <- readRDS("NRSG2002sub.rds")
+
+# Save the 1995
+saveRDS(NSFG1995_subset, "NRSG1995sub.rds")
+#NSFG1995sub <- readRDS("NRSG1995sub.rds")
+
+# Save the 1988
+saveRDS(NSFG1988_subset, "NRSG1988sub.rds")
+#NSFG1988sub <- readRDS("NRSG1988sub.rds")
+
+# Save the 1982
+saveRDS(NSFG1982_subset, "NRSG1982sub.rds")
+#NSFG1982sub <- readRDS("NRSG1982sub.rds")
+
+#rm("NSFG1973")
+#rm("NSFG1976")
+#rm("NSFG2011_2013")
+```
+```{r, eval=FALSE, include=FALSE}
+write.csv(NSFG2013_subset, "NRSG2013sub.csv")
+write.csv(NSFG2011_subset, "NRSG2011sub.csv")
+write.csv(NSFG2006_subset, "NRSG2006sub.csv")
+write.csv(NSFG2002_subset, "NRSG2002sub.csv")
+write.csv(NSFG1995 subset, "NRSG1995sub.csv")
+write.csv(NSFG1988_subset, "NRSG1988sub.csv")
+write.csv(NSFG1982_subset, "NRSG1982sub.csv")
+```
+```{r, eval=FALSE, include=FALSE}
+rm("NSFG2013")
+rm("NSFG2013_subset")
+rm("NSFG2011")
+rm("NSFG2011_subset")
+rm("NSFG2006")
+rm("NSFG2006_subset")
+rm("NSFG2002")
+rm("NSFG2002_subset")
+rm("NSFG1995")
+rm("NSFG1995_subset")
+rm("NSFG1988")
+rm("NSFG1988_subset")
+rm("NSFG1982")
+rm("NSFG1982_subset")
+```
+```{r, echo=FALSE, include=FALSE}
+#NSFG2013sub <- readRDS("NRSG2013sub.rds")
+#NSFG2011sub <- readRDS("NRSG2011sub.rds")
+#NSFG2006sub <- readRDS("NRSG2006sub.rds")
+#NSFG2002sub <- readRDS("NRSG2002sub.rds")
+#NSFG1995sub <- readRDS("NRSG1995sub.rds")
+#NSFG1988sub <- readRDS("NRSG1988sub.rds")
+#NSFG1982sub <- readRDS("NRSG1982sub.rds")
+
+NSFG2013sub <- read_csv("NRSG2013sub.csv", col_names=TRUE)
+NSFG2011sub <- read_csv("NRSG2011sub.csv", col_names=TRUE)
+NSFG2006sub <- read_csv("NRSG2006sub.csv", col_names=TRUE)
+NSFG2002sub <- read_csv("NRSG2002sub.csv", col_names=TRUE)
+NSFG1995sub <- read_csv("NRSG1995sub.csv", col_names=TRUE)
+NSFG1988sub <- read_csv("NRSG1988sub.csv", col_names=TRUE)
+NSFG1982sub <- read_csv("NRSG1982sub.csv", col_names=TRUE)
+```
+```{r, echo=FALSE, include=FALSE}
+#Insert survey year as variable
+NSFG2013sub$SURVEYYEAR <- 2013
+NSFG2011sub$SURVEYYEAR <- 2011
+NSFG2006sub$SURVEYYEAR <- 2006
+NSFG2002sub$SURVEYYEAR <- 2002
+NSFG1995sub$SURVEYYEAR <- 1995
+NSFG1988sub$SURVEYYEAR <- 1988
+NSFG1982sub$SURVEYYEAR <- 1982
+NSFG2013sub$CYCLE <- 9
+NSFG2011sub$CYCLE <- 8
+NSFG2006sub$CYCLE <- 7
+NSFG2002sub$CYCLE <- 6
+NSFG1995sub$CYCLE <- 5
+NSFG1988sub$CYCLE <- 4
+NSFG1982sub$CYCLE <- 3
+#NSFG1976_subset$SURVEYYEAR <- 1976
+#NSFG1973_subset$SURVEYYEAR <- 1973
+```
+```{r, include=FALSE}
+#NSFG89 <- rbind(NSFG2011sub, NSFG2013sub)
+#NSFG789 <- rbind(NSFG2011sub, NSFG2013sub, NSFG2006sub)
+#NSFG5789 <- rbind(NSFG2011sub, NSFG2013sub, NSFG2006sub, NSFG1995sub)
+#NSFG56789 <- rbind(NSFG2011sub, NSFG2013sub, NSFG2006sub,NSFG2002sub, NSFG1995sub)
+#NSFG456789 <- rbind(NSFG2011sub, NSFG2013sub, NSFG2006sub,NSFG2002sub, NSFG1995sub, NSFG1988sub)
+
+NSFG <- rbind(NSFG2011sub, NSFG2013sub, NSFG2006sub,NSFG2002sub, NSFG1995sub, NSFG1982sub, NSFG1988sub)
+#OH MY GOD IT FINALLY WORKED. NOW GET RID OF ALL THE EVIDENCE OF FAILURES:
+#rm("NSFG89")
+#rm("NSFG456789")
+#rm("NSFG56789")
+#rm("NSFG5789")
+#rm("NSFG789")
+write.csv(NSFG, "NSFG.csv")
+```
+```{r, include=FALSE, include=FALSE}
+### Generate counts of CASEID to fill out table below for number of respondents
+Case1976 <-8611
+Case1973 <-9797
+
+ALlYr_Resp <- sum(length(NSFG2013sub$CASEID), length(NSFG2011sub$CASEID), length(NSFG2006sub$CASEID), length(NSFG2002sub$CASEID), length(NSFG1995sub$CASEID), length(NSFG1988sub$RACE), length(NSFG1982sub$METRO), Case1976, Case1973)
+
+SINGLESTOO <- sum(length(NSFG2013sub$CASEID), length(NSFG2011sub$CASEID), length(NSFG2006sub$CASEID), length(NSFG2002sub$CASEID), length(NSFG1995sub$CASEID), length(NSFG1988sub$RACE), length(NSFG1982sub$METRO))
+
+Cases <- c(length(NSFG2013sub$CASEID),
+          length(NSFG2011sub$CASEID),
+          length(NSFG2006sub$CASEID),
+          length(NSFG2002sub$CASEID),
+          length(NSFG1995sub$CASEID),
+          length(NSFG1988sub$RACE),
+          length(NSFG1982sub$METRO),
+          Case1976,
+          Case1973,
+          ALlYr_Resp, SINGLESTOO)
+```
+Year of NFGS | Number of Respondents | Variables | Notes
+------------- | -------------|--------------|--------------
+2013-2015 | `r Cases[1]`  | 3207 | This was the first file imported as a CSV.
+2011-2013 | `r Cases[2]`   |  3094   | Imported as CSV.
+2006-2010 |  `r Cases[3]`  |  3315  | Imported as CSV.
+2002 |    `r Cases[4]` |  3087  | Cycle 6, 3 SAS setup files.
+1995 |  `r Cases[5]` |  5753   | Cycle 5, Imported as CSV.
+1988 |   `r Cases[6]`  |  1437   | Cycle 4, Imported as CSV.
+1982 |   `r Cases[7]`  |  742   | Cycle 3, Imported as CSV.
+1976 |   `r Cases[8]`  |  470   | Cycle 2, Imported as CSV.
+1973 |    `r Cases[9]` |   451  | Cycle 1, Imported as CSV.
+All Respondents |   `r Cases[10]`     |  |   
+1982-2015 |   `r Cases[11]`     |      |
+
+Upon further inspection of code books, it became evident that the 1973 and 1976 files could not be used in analysis. Throughout these cycles, the CDC interviewed only married women or unmarried women who had borne children for the NSFG. From 1982 onward, unmarried and childless women were included in the NSFG, therefore, the initial two cycles of the NSFG were excluded here because the differences in sampling populations introduces too great a threat to data validity and generalizability.
+
+
+## Data Cleaning Summary
+
+Sixty-three variables were extracted from the NSFG datasets. These variables capture information regarding respondent demographics, contraceptive utilization, sexual education history, and reproductive history. These variables were selected with special consideration for variables present in the most recent three cycles of the NSFG (2006, 2011-2013, and 2013-2015), which are most similar in their data cleaning and accessibility of resources detailing data coding methodology. Two variables were added prior to datamerge: CYCLE and YEAR which both indicate which NSFG survey dataset that respondent had been included.
+
+#### Below is a summary of the sixty-three variables chosen for extraction:
+* MAINTENANCE
+
+    * CASEID: Respondent's (R's) Study ID.  
+    * CMINTVW: Century Month of Interview.
+    * INTVWYEAR: Year of Interview.
+
+* DEMOGRAPHICS
+
+    * AGE_R: Age of R
+    * MARSTAT: Marital Status of R
+    * HIGRADE: R's current grade in school or highest grade/year attended
+    * DEGREES: R's highest college or university degree received
+    * PARMARR: Whether R's biological parents married at R's birth
+    * ACASILANG: Language to be used in ACASI
+    * AGER: Recode of R's Age
+    * HISPANIC: Whether R identifies as Hispanic
+    * RACE: R's Race
+    * CURR_INS: Current health insurance status
+    * METRO: Metro versus Non-Metro as place of residence
+    * RELIGION: R's current religions affiliation
+    * LABORFOR: R's employment status
+    * POVERTY: R's income as a percentage of poverty level
+    * TOTINCR: R's total household income
+    * PUBASSIS: Whether R currently receives public assistance
+
+* CONTRACEPTIVE USE
+
+    * PILL- Whether R has ever used birth control pills?
+    * NORPLANT- Whether R has ever used hormonal implants?
+    * CONDOM- Whether R has ever used condoms?
+    * VASECTMY- Whether R has ever depended on partner's vasectomy?
+    * DIAFRAGM- Whether R has ever used a diaphragm?
+    * DEPOPROV- Whether R has ever used depo-provera or other injectable?
+    * WIDRAWAL- Whether R has ever used withdrawal?
+    * RHYTHM- Whether R has ever used rhythm method?
+    * SDAYCBDS- Whether R has ever used Standard Days or CycleBeads?
+    * TEMPSAFE- Whether R has ever used natural family planning (safe temperature)?
+    * WOCONDOM- Whether R has ever used a women's condem?
+    * FOAMALON- Whether R has ever used contraceptive foam?
+    * JELCRMAL- Whether R has ever used spermicide jelly or cream?
+    * CERVLCAP- Whether R has ever used a cervical cap?
+    * SUPPOSIT- Whether R has ever used suppositories?
+    * TODAYSPG- Whether R has ever used the Today Sponge?
+    * IUD- Whether R has ever had an IUD?
+    * LUNELLE- Whether R has ever used Lunelle injection?
+    * PATCH- Whether R has ever used contraceptive patch?
+    * RING- Whether R has ever used the contracpetive ring?
+    * OTHRMETH01- Has R used another method?
+    * ECTIMESX- Number of times R used emergency contraception.
+    * FIRSMETH1- What was first method R used?
+    * CURRMETH1- What is the current method R uses (1)?
+    * CURRMETH2- What is the current method R uses (1)?
+    * CURRMETH3- What is the current method R uses (1)?
+    * CURRMETH4- What is the current method R uses (1)?
+    
+* REPRO HEALTH
+
+    * MAYBPREG- Currently, does R believe she could be pregnant? 
+    * NPREGS_S- Total number of pregnancies
+    * PARITY- Total number of live births
+    * ABORTION- Total number of induced abortions
+    * HYST- Has R had a hysterectomy?
+    * OVAREM- Has R had an ovarectomy? 
+    * OTHR- Is R surgically sterile due to another operation?
+    * PREGNOWQ- Is R currently pregnant?
+
+* SEXUAL HX
+
+    * EVERSEX- Has R ever had hetereosexual intercourse?
+    * RHADSEX- Has R ever had hetereosexual intercourse (recoded)?
+    * YNOSEX- Main reason R has not had hetereosexual intercourse?
+    
+* SEX ED
+
+    * SEDBC- Did R receive formal Sex Ed Before 18: Methods of Birth Control
+    * SEDBCG- R's Grade When Received Instruction on Birth Control
+    * SEDBCSX- Received Sex Ed on Birth Control Methods Before/After 1st Sex
+    * SEDWHBC- Did R receive formal Sex Ed Before 18: Where to Get Birth Control
+    * SEDWHBCG- R's Grade When Received Instruction on Where to Get Birth Control
+    * SEDWBCSX- Received Sex Ed on Where to get Birth Control Before/After 1st Sex
+
+#### *Challenges:* 
+This survey has been collected in large cohorts of women over the past 34 years. While providing the user with enormous amounts of data, the CDC has been consistently inconsistent in their variable collection and availability of specific variables. Since its inception in 1973, there has been a seven-fold increase in the number of variables maintained in the dataset, while many of these are recodes and imputed variables, some are useful for further examining reproductive health history or sexual education experiences. Additionally, many contraceptive methods have been developed or fallen out of use in the last 35 years, so the contraceptive use variables have also changed greatly overtime. Many coding schemes have remained consistent across NSFG datasets, allowing the collapse across sets to be more easily handled. 
+
+# Preliminary Analyses
+
+```{r, include=FALSE}
+SumStat <- NSFG %>%
+  group_by(SURVEYYEAR) %>%
+  summarise(MeanAge = round(mean(AGE_R, na.rm=TRUE), digits=2),
+            SDAge = round(sd(AGE_R, na.rm=TRUE), digits=2),
+            MeanHG = round(mean(HIGRADE, na.rm=TRUE), digits=2),
+            SDHG = round(sd(HIGRADE, na.rm=TRUE), digits=2))
+SumStat2 <- NSFG %>%
+  summarise(MeanAge = round(mean(AGE_R, na.rm=TRUE), digits=2),
+            SDAge = round(sd(AGE_R, na.rm=TRUE), digits=2),
+            MeanHG = round(mean(HIGRADE, na.rm=TRUE), digits=2),
+            SDHG = round(sd(HIGRADE, na.rm=TRUE), digits=2))
+
+PrctHISP <- c(round(prop.table(table(NSFG1982sub$HISPANIC))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$HISPANIC))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$HISPANIC))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$HISPANIC))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$HISPANIC))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$HISPANIC))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$HISPANIC))*100, digits=2),
+              round(prop.table(table(NSFG$HISPANIC))*100, digits=2))
+PrctMinority <- c(round(prop.table(table(NSFG1982sub$RACE))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$RACE))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$RACE))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$RACE))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$RACE))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$RACE))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$RACE))*100, digits=2),
+              round(prop.table(table(NSFG$RACE))*100, digits=2))
+
+
+PrctMetro <- c(round(prop.table(table(NSFG1982sub$METRO))*100, digits=2), #3 1
+              round(prop.table(table(NSFG1988sub$METRO))*100, digits=2), #3 4
+              round(prop.table(table(NSFG1995sub$METRO))*100, digits=2), #NA
+              round(prop.table(table(NSFG2002sub$METRO))*100, digits=2), #3 7
+              round(prop.table(table(NSFG2006sub$METRO))*100, digits=2), #NA
+              round(prop.table(table(NSFG2011sub$METRO))*100, digits=2), #3 10
+              round(prop.table(table(NSFG2013sub$METRO))*100, digits=2), #3 13
+              round(prop.table(table(NSFG$METRO))*100, digits=2)) #3 16
+PrctMarstat <- c(round(prop.table(table(NSFG1982sub$MARSTAT))*100, digits=2), #6 1+6
+              round(prop.table(table(NSFG1988sub$MARSTAT))*100, digits=2), #6 7+12
+              round(prop.table(table(NSFG1995sub$MARSTAT))*100, digits=2), #5  13+17
+              round(prop.table(table(NSFG2002sub$MARSTAT))*100, digits=2), #6   18+23
+              round(prop.table(table(NSFG2006sub$MARSTAT))*100, digits=2), #6   24+29
+              round(prop.table(table(NSFG2011sub$MARSTAT))*100, digits=2), #7   30+35
+              round(prop.table(table(NSFG2013sub$MARSTAT))*100, digits=2), #7   37+42
+              round(prop.table(table(NSFG$MARSTAT))*100, digits=2)) #7          44-49
+PrctACASILANG <- c(round(prop.table(table(NSFG1982sub$ACASILANG))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$ACASILANG))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$ACASILANG))*100, digits=2), #2
+              round(prop.table(table(NSFG2002sub$ACASILANG))*100, digits=2), #2
+              round(prop.table(table(NSFG2006sub$ACASILANG))*100, digits=2), #1,2,7
+              round(prop.table(table(NSFG2011sub$ACASILANG))*100, digits=2), #1,2,7
+              round(prop.table(table(NSFG2013sub$ACASILANG))*100, digits=2), #1,2,7
+              round(prop.table(table(NSFG$ACASILANG))*100, digits=2)) #1,2,7
+
+PrctCurrIns <- c(round(prop.table(table(NSFG1982sub$CURR_INS))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$CURR_INS))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$CURR_INS))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$CURR_INS))*100, digits=2), #1-4
+              round(prop.table(table(NSFG2006sub$CURR_INS))*100, digits=2), #1-4
+              round(prop.table(table(NSFG2011sub$CURR_INS))*100, digits=2), #1-4
+              round(prop.table(table(NSFG2013sub$CURR_INS))*100, digits=2), #1-4
+              round(prop.table(table(NSFG$CURR_INS))*100, digits=2)) #1-4
+
+PrctLabor <- c(round(prop.table(table(NSFG1982sub$LABORFOR))*100, digits=2), #1-8 1
+              round(prop.table(table(NSFG1988sub$LABORFOR))*100, digits=2), #1-11 weird 9
+              round(prop.table(table(NSFG1995sub$LABORFOR))*100, digits=2), #1-11 20
+              round(prop.table(table(NSFG2002sub$LABORFOR))*100, digits=2), #1-9 31
+              round(prop.table(table(NSFG2006sub$LABORFOR))*100, digits=2), #1-9 40
+              round(prop.table(table(NSFG2011sub$LABORFOR))*100, digits=2), #1-9 49
+              round(prop.table(table(NSFG2013sub$LABORFOR))*100, digits=2), #1-9 58
+              round(prop.table(table(NSFG$LABORFOR))*100, digits=2)) #67
+PrctPubAssis <- c(round(prop.table(table(NSFG1982sub$PUBASSIS))*100, digits=2),#Unavail
+              round(prop.table(table(NSFG1988sub$PUBASSIS))*100, digits=2),#Unavail
+              round(prop.table(table(NSFG1995sub$PUBASSIS))*100, digits=2), #Unavail
+              round(prop.table(table(NSFG2002sub$PUBASSIS))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$PUBASSIS))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$PUBASSIS))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$PUBASSIS))*100, digits=2),
+              round(prop.table(table(NSFG$PUBASSIS))*100, digits=2))
+
+
+#knitr::kable(x = SummaryStats2[1:5],
+#             col.names = c("Survey Year",
+#                           "Mean Age",
+#                           "Standard Deviation of Age",
+#                           "Mean Highest Grade of Education",
+#                           "Standard Deviation of High Grade"),
+#            caption = "Summary of Demographics by Survey Year")
+```
+
+Year of NFGS | Age | Highest Grade of Education | % Hispanic | % Black | % White| 
+------------- | -------------|--------------|--------------|--------------|--------------
+1982 |  `r SumStat[1,2]` +/- `r SumStat[1,3]`|  `r SumStat[1,4]` +/- `r SumStat[1,5]`|  `r PrctHISP [1] `|  `r PrctMinority[1] `| `r PrctMinority[2] `
+1988 |  `r SumStat[2,2]` +/- `r SumStat[2,3]`|  `r SumStat[2,4]` +/- `r SumStat[2,5]`|  `r PrctHISP [3] `|  `r PrctMinority[4] `| `r PrctMinority[5] `
+1995 |  `r SumStat[3,2]` +/- `r SumStat[3,3]`|  `r SumStat[3,4]` +/- `r SumStat[3,5]`|  `r PrctHISP [5] `|  `r PrctMinority[7] `|`r PrctMinority[8] `
+2002  |  `r SumStat[4,2]` +/- `r SumStat[4,3]`|  `r SumStat[4,4]` +/- `r SumStat[4,5]`|  `r PrctHISP [7] `|  `r PrctMinority[10] `| `r PrctMinority[11] `
+2006-2010 |  `r SumStat[5,2]` +/- `r SumStat[5,3]`|  `r SumStat[5,4]` +/- `r SumStat[5,5]`|  `r PrctHISP [9] `|  `r PrctMinority[13] `| `r PrctMinority[14] `
+2011-2013 |  `r SumStat[6,2]` +/- `r SumStat[6,3]`|  `r SumStat[6,4]` +/- `r SumStat[6,5]`|  `r PrctHISP [11] `|  `r PrctMinority[16] `| `r PrctMinority[17] `
+2013-2015 |  `r SumStat[7,2]` +/- `r SumStat[7,3]`|  `r SumStat[7,4]` +/- `r SumStat[7,5]`|  `r PrctHISP [13] `|  `r PrctMinority[19] `| `r PrctMinority[20] `
+All Respondents |  `r SumStat2[1,1]` +/- `r SumStat2[1,2]`|  `r SumStat2[1,3]` +/- `r SumStat2[1,4]`|  `r PrctHISP [15] `|  `r PrctMinority[22] `|`r PrctMinority[23] `
+
+
+#### Additional Demographics
+
+Year of NFGS | % Currently Married | % Never Married | % Residing in Metro Areas | % Perfering English/Spanish | 
+------------- | -------------|--------------|--------------|--------------
+1982 | `r PrctMarstat [1] `| `r PrctMarstat [6] ` | `r PrctMetro [1] ` | Data Unavailable
+1988 | `r PrctMarstat [7] `| `r PrctMarstat [12] ` | `r PrctMetro [4] ` | Data Unavailable
+1995 | `r PrctMarstat [13] `| `r PrctMarstat [17] ` | Data Unavailable | `r PrctACASILANG [1] `; `r PrctACASILANG [2] `
+2002 | `r PrctMarstat [18] `| `r PrctMarstat [23] ` | `r PrctMetro [7] ` | `r PrctACASILANG [3] `; `r PrctACASILANG [4] `
+2006-2010 | `r PrctMarstat [24] `| `r PrctMarstat [29] ` | Data Unavailable | `r PrctACASILANG [5] `; `r PrctACASILANG [6] `
+2011-2013 | `r PrctMarstat [30] `| `r PrctMarstat [35] ` | `r PrctMetro [10] ` | `r PrctACASILANG [8] `; `r PrctACASILANG [9] `
+2013-2015 | `r PrctMarstat [37] `| `r PrctMarstat [42] ` | `r PrctMetro [13] ` | `r PrctACASILANG [11] `; `r PrctACASILANG [12] `
+All Surveys | `r PrctMarstat [44] `| `r PrctMarstat [49] ` | `r PrctMetro [16] ` | `r PrctACASILANG [14] `; `r PrctACASILANG [15] `
+
+
+#### Participant Financial Indicators
+Year of NFGS | % Private Insured | % Medicaid Insured | % Uninsured |% Receiving Public Assistance | % Employeed Full Time
+------------- | -------------|--------------|--------------|--------------|--------------
+1982 | Data Unavailable | Data Unavailable | Data Unavailable | Data Unavailable | `r PrctLabor [1] `|
+1988 | Data Unavailable | Data Unavailable | Data Unavailable | Data Unavailable | `r PrctLabor [9] `|
+1995 | Data Unavailable | Data Unavailable | Data Unavailable | Data Unavailable | `r PrctLabor [20] `|
+2002 | `r PrctCurrIns [1] `| `r PrctCurrIns [2] `| `r PrctCurrIns [3] `| `r PrctPubAssis [1] `| `r PrctLabor [31] `|
+2006-2010 | `r PrctCurrIns [5] `| `r PrctCurrIns [6] `| `r PrctCurrIns [7] `| `r PrctPubAssis [3] `| `r PrctLabor [40] `|
+2011-2013 | `r PrctCurrIns [9] `| `r PrctCurrIns [10] `| `r PrctCurrIns [11] `| `r PrctPubAssis [5] `| `r PrctLabor [49] `|
+2013-2015 | `r PrctCurrIns [13] `| `r PrctCurrIns [14] `| `r PrctCurrIns [15] `| `r PrctPubAssis [7] `| `r PrctLabor [58] `|
+All Surveys |`r PrctCurrIns [17] `| `r PrctCurrIns [18] `| `r PrctCurrIns [19] `| `r PrctPubAssis [9] `| `r PrctLabor [67] `|
+
+**_Goal 3: Visualization_** I plan on investing a great deal of time into the visualization step, since I believe that when working with so many variables, the interesting, effective dissemination of results depends on good visualization. This step will be the final week of "processing type" work before I begin writing my manuscript. Therefore, I will have functional visualizations completed before March 1^st^.  
+
+**_MILESTONE 2: Working Prototype_** The next milestone is due on March 22^nd^, and I will spend from March 1^st^-15^th^ working on this manuscript. 
+
+**_Manuscript Rewrites_** After discussing my project with a professor to get feedback, I plan to rewrite my manuscript and edit any analysis steps and implement any suggestions to improve the visualization of the data. The analysis changes will occur from March 15^th^-April1^st^. Visualization changes will take the next week, and from April 7^th^ to the 15^th^, I will conduct the final manuscript edits.
+
+**_MILESTONE 3: Final Manuscript_** Due Wednesday, April 19^th^.
+
+
