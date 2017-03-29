@@ -1342,7 +1342,7 @@ Year of NFGS | Age | Highest Grade of Education | % Hispanic | % Black | % White
 All Respondents |  `r SumStatAll[1]` +/- `r SumStatAll[2]`|  `r SumStatAll[3]` +/- `r SumStatAll[4]`| `r PrctHISP [15] `|  `r PrctMinority[22] `|`r PrctMinority[23] `
 
 
-#### Additional Demographics
+### Additional Demographics
 
 Year of NFGS | % Currently Married | % Never Married | % Residing in Metro Areas | % Perfering English/Spanish | 
 ------------- | -------------|--------------|--------------|--------------
@@ -1356,7 +1356,7 @@ Year of NFGS | % Currently Married | % Never Married | % Residing in Metro Areas
 All Surveys | `r PrctMarstat [44] `| `r PrctMarstat [49] ` | `r PrctMetro [16] ` | `r PrctACASILANG [14] `; `r PrctACASILANG [15] `
 
 
-#### Participant Financial Indicators
+### Participant Financial Indicators
 Year of NFGS | % Private Insured | % Medicaid Insured | % Uninsured |% Receiving Public Assistance | % Employeed Full Time
 ------------- | -------------|--------------|--------------|--------------|--------------
 1982 | Data Unavailable | Data Unavailable | Data Unavailable | Data Unavailable | `r PrctLabor [1] `|
