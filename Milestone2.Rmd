@@ -10,9 +10,17 @@ output:
 ---
 ```{r, echo=FALSE, include=FALSE}
 # loading tidyverse and haven libraries... not sure if this is needed.... 
-library(tidyverse) #dplier-merging datasets
+library(tidyverse) #dplyer-merging datasets
 library(haven)
 library(shiny)
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(extrafont)
+library(plyr)
+library(scales)
+library(gmodels)
+library(reshape2)
 ```
 #### The CDC has allowed open access to the NSFG survey results from 1973-2015:   
 [https://www.cdc.gov/nchs/nsfg/index.htm](https://www.cdc.gov/nchs/nsfg/index.htm).  
@@ -20,7 +28,7 @@ library(shiny)
 #### The code used to generate this report is available from my GitHub Account:    
 [https://github.com/JulianneA/N741_Milestone1](https://github.com/JulianneA/N741_Milestone1)
 
-# Initial Exploration of Available Data
+# Initial Cleaning of Available Data
 ```{r, eval=FALSE, include=FALSE}
 # read in the comma delimited (CSV) formatted dataset
 # **NOTE**: This dataset has the column names as the 1st row of the file thanks to SAS gymnastics
@@ -564,7 +572,7 @@ NSFG1988_subset$NPREGS_S <- NSFG1988$PREGNUM
 NSFG1988_subset$SEDBC <- NSFG1988$A9D
 NSFG1988_subset$SEDBCG <- NSFG1988$A_11
 NSFG1988_subset$AGE_R <- NSFG1988$A_5
-NSFG1988_subset$CURRMETH1 <- NSFG1988$BOX33
+NSFG1988_subset$CURRMETH1 <- NSFG1988$CONSTAT
 NSFG1988_subset$OTHRMETH01 <- NSFG1988$CMETHQ
 NSFG1988_subset$FIRSMETH1 <- NSFG1988$METHOD1
 NSFG1988_subset$CMINTVW <- NSFG1988$CMOIMO
@@ -775,7 +783,214 @@ NSFG1982sub$CYCLE <- 3
 #NSFG1976_subset$SURVEYYEAR <- 1976
 #NSFG1973_subset$SURVEYYEAR <- 1973
 ```
-```{r, include=FALSE}
+```{r, echo=FALSE, include=FALSE}
+#Recode 1982
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==1] <- 6 #female ster
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==2] <- 5 #male ster
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==3] <- 3 #Pill
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==4] <- 19 #IUD  
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==5] <- 12  #diaphragm
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==6] <- 4  #condom
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==7] <- 14  #foam
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==8] <- 10 #rhythm
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==9] <- 7  #withdrawal
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==10] <- 95 #douche
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==11] <- 17  #suppository or insert
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==12] <- 21 #Other, known
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==13] <- 21 #Other, unknown
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==14] <- 11   #NFP
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==88] <- 1 #no method
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==96] <- NA  #not sexually active
+NSFG1982sub$RecMeth[NSFG1982sub$CURRMETH1==99] <- 98 #missing
+
+#Recode 1988
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==1] <- 6 #female ster 
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==2] <- 5 #male ster
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==3] <- 3 #Pill
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==4] <- 19 #IUD  
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==5] <- 12  #diaphragm
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==6] <- 4  #condom
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==7] <- 4  #condom
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==8] <- 14  #foam
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==9] <- 10 #rhythm
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==10] <- 7  #withdrawal
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==11] <- 95 #douche
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==12] <- 11  #NFP/temp
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==13] <- 18  #today sponge
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==14] <- 17  #suppository or insert
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==15] <- 15  #jelly or cream
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==16] <- 21 #Other, known
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==17] <- 21 #Other, unknown
+
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==21] <- 1 #no method
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==22] <- 1 #female ster
+
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==23] <- 31 #female ster nonsurg
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==23] <- 30 #male ster nonsurg
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==23] <- 6 #female ster surg
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==23] <- 5 #male ster surg
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==23] <- 27 #other sterile
+
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==30] <- NA  #not sexually active
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==31] <- 1 #missing
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==32] <- 1 #missing
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==33] <- 1 #missing
+
+NSFG1988sub$RecMeth[NSFG1988sub$CURRMETH1==99] <- 98 #missing
+
+#Recode 1995
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==1] <- 3 #pill
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==2] <- 4 #condom
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==3] <- 13 #female doncom
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==4] <- 14 #foam  
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==5] <- 15  #jelly or cream
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==6] <- 7 #suppository
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==7] <- 12  #diaphragm
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==8] <- 9  #norplant
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==9] <- 8 #depo
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==10] <- 19  #IUD
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==11] <- 6 #female ster
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==12] <- 5  #vasectomy
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==13] <- 11  #temp safe
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==14] <- 10 #rhythm
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==15] <- 7 #withdrawal
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==16] <- 18   #today sponge
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==17] <- 20 #Emergency C
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==18] <- 16  #Cervical Cap
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==19] <- 30  #partner sterile
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==20] <- 21 #other
+#NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1== ] <- NA  #not applicable
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==95] <- 1 #no method
+NSFG1995sub$RecMeth[NSFG1995sub$CURRMETH1==96] <- 1 #no method
+
+NSFG2002sub$RecMeth<- NSFG2002sub$CURRMETH1 #no method
+NSFG2006sub$RecMeth<- NSFG2006sub$CURRMETH1 #no method
+NSFG2011sub$RecMeth<- NSFG2011sub$CURRMETH1 #no method
+NSFG2013sub$RecMeth<- NSFG2013sub$CURRMETH1 #no method
+
+```
+```{r, echo=FALSE, include=FALSE}
+#RECODE CONTRACEPTIVES
+NSFG1988sub$PILL[NSFG1988sub$PILL==7] <- 8
+NSFG1988sub$PILL[NSFG1988sub$PILL==2] <- 5
+NSFG1995sub$PILL[NSFG1995sub$PILL==2] <- 5
+NSFG1982sub$PILL[NSFG1982sub$PILL==2] <- 5
+
+NSFG1988sub$CONDOM[NSFG1988sub$CONDOM==7] <- 8
+NSFG1988sub$CONDOM[NSFG1988sub$CONDOM==2] <- 5
+NSFG1995sub$CONDOM[NSFG1995sub$CONDOM==2] <- 5
+NSFG1982sub$CONDOM[NSFG1982sub$CONDOM==2] <- 5
+
+NSFG1988sub$VASECTMY[NSFG1988sub$VASECTMY==7] <- 8
+NSFG1988sub$VASECTMY[NSFG1988sub$VASECTMY==2] <- 5
+NSFG1995sub$VASECTMY[NSFG1995sub$VASECTMY==2] <- 5
+NSFG1982sub$VASECTMY[NSFG1982sub$VASECTMY==2] <- 5
+
+NSFG1988sub$DIAFRAGM[NSFG1988sub$DIAFRAGM==7] <- 8
+NSFG1988sub$DIAFRAGM[NSFG1988sub$DIAFRAGM==2] <- 5
+NSFG1995sub$DIAFRAGM[NSFG1995sub$DIAFRAGM==2] <- 5
+NSFG1982sub$DIAFRAGM[NSFG1982sub$DIAFRAGM==2] <- 5
+
+NSFG1988sub$DEPOPROV[NSFG1988sub$DEPOPROV==7] <- 8
+NSFG1988sub$DEPOPROV[NSFG1988sub$DEPOPROV==2] <- 5
+NSFG1995sub$DEPOPROV[NSFG1995sub$DEPOPROV==2] <- 5
+NSFG1982sub$DEPOPROV[NSFG1982sub$DEPOPROV==2] <- 5
+
+NSFG1988sub$WIDRAWAL[NSFG1988sub$WIDRAWAL==7] <- 8
+NSFG1988sub$WIDRAWAL[NSFG1988sub$WIDRAWAL==2] <- 5
+NSFG1995sub$WIDRAWAL[NSFG1995sub$WIDRAWAL==2] <- 5
+NSFG1982sub$WIDRAWAL[NSFG1982sub$WIDRAWAL==2] <- 5
+
+NSFG1988sub$RHYTHM[NSFG1988sub$RHYTHM==7] <- 8
+NSFG1988sub$RHYTHM[NSFG1988sub$RHYTHM==2] <- 5
+NSFG1995sub$RHYTHM[NSFG1995sub$RHYTHM==2] <- 5
+NSFG1982sub$RHYTHM[NSFG1982sub$RHYTHM==2] <- 5
+
+NSFG1988sub$SDAYCBDS[NSFG1988sub$SDAYCBDS==7] <- 8
+NSFG1988sub$SDAYCBDS[NSFG1988sub$SDAYCBDS==2] <- 5
+NSFG1995sub$SDAYCBDS[NSFG1995sub$SDAYCBDS==2] <- 5
+NSFG1982sub$SDAYCBDS[NSFG1982sub$SDAYCBDS==2] <- 5
+
+NSFG1988sub$TEMPSAFE[NSFG1988sub$TEMPSAFE==7] <- 8
+NSFG1988sub$TEMPSAFE[NSFG1988sub$TEMPSAFE==2] <- 5
+NSFG1995sub$TEMPSAFE[NSFG1995sub$TEMPSAFE==2] <- 5
+NSFG1982sub$TEMPSAFE[NSFG1982sub$TEMPSAFE==2] <- 5
+
+NSFG1988sub$WOCONDOM[NSFG1988sub$WOCONDOM==7] <- 8
+NSFG1988sub$WOCONDOM[NSFG1988sub$WOCONDOM==2] <- 5
+NSFG1995sub$WOCONDOM[NSFG1995sub$WOCONDOM==2] <- 5
+NSFG1982sub$WOCONDOM[NSFG1982sub$WOCONDOM==2] <- 5
+
+NSFG1988sub$FOAMALON[NSFG1988sub$FOAMALON==7] <- 8
+NSFG1988sub$FOAMALON[NSFG1988sub$FOAMALON==2] <- 5
+NSFG1995sub$FOAMALON[NSFG1995sub$FOAMALON==2] <- 5
+NSFG1982sub$FOAMALON[NSFG1982sub$FOAMALON==2] <- 5
+
+NSFG1988sub$JELCRMAL[NSFG1988sub$JELCRMAL==7] <- 8
+NSFG1988sub$JELCRMAL[NSFG1988sub$JELCRMAL==2] <- 5
+NSFG1995sub$JELCRMAL[NSFG1995sub$JELCRMAL==2] <- 5
+NSFG1982sub$JELCRMAL[NSFG1982sub$JELCRMAL==2] <- 5
+
+NSFG1988sub$CERVLCAP[NSFG1988sub$CERVLCAP==7] <- 8
+NSFG1988sub$CERVLCAP[NSFG1988sub$CERVLCAP==2] <- 5
+NSFG1995sub$CERVLCAP[NSFG1995sub$CERVLCAP==2] <- 5
+NSFG1982sub$CERVLCAP[NSFG1982sub$CERVLCAP==2] <- 5
+
+NSFG1988sub$SUPPOSIT[NSFG1988sub$SUPPOSIT==7] <- 8
+NSFG1988sub$SUPPOSIT[NSFG1988sub$SUPPOSIT==2] <- 5
+NSFG1995sub$SUPPOSIT[NSFG1995sub$SUPPOSIT==2] <- 5
+NSFG1982sub$SUPPOSIT[NSFG1982sub$SUPPOSIT==2] <- 5
+
+NSFG1988sub$TODAYSPG[NSFG1988sub$TODAYSPG==7] <- 8
+NSFG1988sub$TODAYSPG[NSFG1988sub$TODAYSPG==2] <- 5
+NSFG1995sub$TODAYSPG[NSFG1995sub$TODAYSPG==2] <- 5
+NSFG1982sub$TODAYSPG[NSFG1982sub$TODAYSPG==2] <- 5
+
+NSFG1988sub$IUD[NSFG1988sub$IUD==7] <- 8
+NSFG1988sub$IUD[NSFG1988sub$IUD==2] <- 5
+NSFG1995sub$IUD[NSFG1995sub$IUD==2] <- 5
+NSFG1982sub$IUD[NSFG1982sub$IUD==2] <- 5
+
+NSFG1988sub$LUNELLE[NSFG1988sub$LUNELLE==7] <- 8
+NSFG1988sub$LUNELLE[NSFG1988sub$LUNELLE==2] <- 5
+NSFG1995sub$LUNELLE[NSFG1995sub$LUNELLE==2] <- 5
+NSFG1982sub$LUNELLE[NSFG1982sub$LUNELLE==2] <- 5
+
+NSFG1988sub$PATCH[NSFG1988sub$PATCH==7] <- 8
+NSFG1988sub$PATCH[NSFG1988sub$PATCH==2] <- 5
+NSFG1995sub$PATCH[NSFG1995sub$PATCH==2] <- 5
+NSFG1982sub$PATCH[NSFG1982sub$PATCH==2] <- 5
+
+NSFG1988sub$RING[NSFG1988sub$RING==7] <- 8
+NSFG1988sub$RING[NSFG1988sub$RING==2] <- 5
+NSFG1995sub$RING[NSFG1995sub$RING==2] <- 5
+NSFG1982sub$RING[NSFG1982sub$RING==2] <- 5
+
+NSFG2013sub$IUD[NSFG2013sub$IUD==2] <- 1
+NSFG2013sub$IUD[NSFG2013sub$IUD==3] <- 1
+NSFG2013sub$IUD[is.na(NSFG2013sub$IUD)] <- 5
+
+#NSFG1988sub$PILL[NSFG1988sub$PILL==9] <- 8
+#NSFG1988sub$CONDOM[NSFG1988sub$CONDOM==9] <- 8
+#NSFG1988sub$VASECTMY[NSFG1988sub$VASECTMY==9] <- 8
+#NSFG1988sub$DIAFRAGM[NSFG1988sub$DIAFRAGM==9] <- 8
+#NSFG1988sub$DEPOPROV[NSFG1988sub$DEPOPROV==9] <- 8
+#NSFG1988sub$WIDRAWAL[NSFG1988sub$WIDRAWAL==9] <- 8
+#NSFG1988sub$SDAYCBDS[NSFG1988sub$SDAYCBDS==9] <- 8
+#NSFG1988sub$RHYTHM[NSFG1988sub$RHYTHM==9] <- 8
+#NSFG1988sub$TEMPSAFE[NSFG1988sub$TEMPSAFE==9] <- 8
+#NSFG1988sub$WOCONDOM[NSFG1988sub$WOCONDOM==9] <- 8
+#NSFG1988sub$FOAMALON[NSFG1988sub$FOAMALON==9] <- 8
+#NSFG1988sub$JELCRMAL[NSFG1988sub$JELCRMAL==9] <- 8
+#NSFG1988sub$CERVLCAP[NSFG1988sub$CERVLCAP==9] <- 8
+#NSFG1988sub$SUPPOSIT[NSFG1988sub$SUPPOSIT==9] <- 8
+#NSFG1988sub$IUD[NSFG1988sub$IUD==9] <- 8
+#NSFG1988sub$TODAYSPG[NSFG1988sub$TODAYSPG==9] <- 8
+#NSFG1988sub$LUNELLE[NSFG1988sub$LUNELLE==9] <- 8
+#NSFG1988sub$PATCH[NSFG1988sub$PATCH==9] <- 8
+#NSFG1988sub$RING[NSFG1988sub$RING==9] <- 8
+```
+```{r, echo=FALSE, include=FALSE}
 #NSFG89 <- rbind(NSFG2011sub, NSFG2013sub)
 #NSFG789 <- rbind(NSFG2011sub, NSFG2013sub, NSFG2006sub)
 #NSFG5789 <- rbind(NSFG2011sub, NSFG2013sub, NSFG2006sub, NSFG1995sub)
@@ -790,8 +1005,49 @@ NSFG <- rbind(NSFG2011sub, NSFG2013sub, NSFG2006sub,NSFG2002sub, NSFG1995sub, NS
 #rm("NSFG5789")
 #rm("NSFG789")
 write.csv(NSFG, "NSFG.csv")
+
+NSFG$RecMeth[NSFG$RecMeth==19] <- 18 #no method
+NSFG$RecMeth[NSFG$RecMeth==12] <- 11 #no method
+
+
 ```
-```{r, include=FALSE, include=FALSE}
+```{r, echo=FALSE, include=FALSE}
+NSFG$Method[NSFG$RecMeth==1] <- "NoMethod"
+NSFG$Method[NSFG$RecMeth==3] <- "BirthControlPills"
+NSFG$Method[NSFG$RecMeth==4] <- "Condom"
+NSFG$Method[NSFG$RecMeth==5] <- "PartnersVasectomy"
+NSFG$Method[NSFG$RecMeth==6] <- "FemaleSterOperation"
+NSFG$Method[NSFG$RecMeth==7] <- "Withdrawal"
+NSFG$Method[NSFG$RecMeth==8] <- "Depo/HormoneInjection"
+NSFG$Method[NSFG$RecMeth==9] <- "HormonalImplant"
+NSFG$Method[NSFG$RecMeth==10] <- "CalendarRhythm"
+NSFG$Method[NSFG$RecMeth==11] <- "SafePeriodByTemperature"
+NSFG$Method[NSFG$RecMeth==12] <- "Diaphragm"
+NSFG$Method[NSFG$RecMeth==13] <- "FemaleCondom"
+NSFG$Method[NSFG$RecMeth==14] <- "Foam"
+NSFG$Method[NSFG$RecMeth==15] <- "Jelly"
+NSFG$Method[NSFG$RecMeth==16] <- "CervicalCap"
+NSFG$Method[NSFG$RecMeth==17] <- "Suppository"
+NSFG$Method[NSFG$RecMeth==18] <- "TodaySponge"
+NSFG$Method[NSFG$RecMeth==19] <- "IUD"
+NSFG$Method[NSFG$RecMeth==20] <- "EmergencyContr"
+NSFG$Method[NSFG$RecMeth==21] <- "Other"
+NSFG$Method[NSFG$RecMeth==22] <- "FemaleSterile"
+NSFG$Method[NSFG$RecMeth==23] <- "MaleSterile"
+NSFG$Method[NSFG$RecMeth==24] <- "Lunelle"
+NSFG$Method[NSFG$RecMeth==25] <- "Patch"
+NSFG$Method[NSFG$RecMeth==26] <- "Ring"
+NSFG$Method[NSFG$RecMeth==30] <- "ManSterile"
+NSFG$Method[NSFG$RecMeth==31] <- "WomanSterile"
+NSFG$Method[NSFG$RecMeth==27] <- "OtherSterile"
+NSFG$Method[NSFG$RecMeth==95] <- "Douching"
+NSFG$Method[NSFG$RecMeth==97] <- "NotAsked"
+NSFG$Method[NSFG$RecMeth==98] <- "Refused"
+NSFG$Method[NSFG$RecMeth==99] <- "DoNotKnow"
+
+#NSFG$CurrMethod <- as.numeric(NSFG$CurrMethod)
+```
+```{r, include=FALSE}
 ### Generate counts of CASEID to fill out table below for number of respondents
 Case1976 <-8611
 Case1973 <-9797
@@ -826,6 +1082,15 @@ All Respondents |   `r Cases[10]`     |  |
 1982-2015 |   `r Cases[11]`     |      |
 
 Upon further inspection of code books, it became evident that the 1973 and 1976 files could not be used in analysis. Throughout these cycles, the CDC interviewed only married women or unmarried women who had borne children for the NSFG. From 1982 onward, unmarried and childless women were included in the NSFG, therefore, the initial two cycles of the NSFG were excluded here because the differences in sampling populations introduces too great a threat to data validity and generalizability.
+
+```{r, echo=FALSE}
+ggplot(NSFG, aes(SURVEYYEAR))+
+  geom_bar(stat = "bin", position = "stack")+
+  geom_bar(width=1.5) +
+       xlab("Year of NSFG Survey Initiation") +
+         ylab("Number of Respondents")+
+        ggtitle("Survey Respondents by Year")
+```
 
 
 ## Data Cleaning Summary
@@ -915,23 +1180,73 @@ Sixty-three variables were extracted from the NSFG datasets. These variables cap
     * SEDWBCSX- Received Sex Ed on Where to get Birth Control Before/After 1st Sex
 
 #### *Challenges:* 
-This survey has been collected in large cohorts of women over the past 34 years. While providing the user with enormous amounts of data, the CDC has been consistently inconsistent in their variable collection and availability of specific variables. Since its inception in 1973, there has been a seven-fold increase in the number of variables maintained in the dataset, while many of these are recodes and imputed variables, some are useful for further examining reproductive health history or sexual education experiences. Additionally, many contraceptive methods have been developed or fallen out of use in the last 35 years, so the contraceptive use variables have also changed greatly overtime. Many coding schemes have remained consistent across NSFG datasets, allowing the collapse across sets to be more easily handled. 
+This survey has been collected in large cohorts of women over the past 34 years. While providing the user with enormous amounts of data, the CDC has been consistently inconsistent in their variable collection and availability of specific variables. Since its inception in 1973, there has been a seven-fold increase in the number of variables maintained in the dataset, while many of these are recodes and imputed variables, some are useful for further examining reproductive health history or sexual education experiences. Additionally, many contraceptive methods have been developed or fallen out of use in the last 35 years, so the contraceptive use variables have also changed greatly overtime. Many coding schemes have been inconsistent across NSFG datasets, allowing the collapse across sets to be difficult. 
+
+Additionally, the SAS setup files provided by the CDC did not generate CSV files with complete column names. Many of these files, for whatever reason, stopped containing variable names after a certain column. This impacted many of the recoded variables, which are of most use here because the recode schemes have remained consistent. For this reason, it became necessary to add column headers within the CSV files to ensure the variables could be imported.
 
 # Preliminary Analyses
-
 ```{r, include=FALSE}
-SumStat <- NSFG %>%
-  group_by(SURVEYYEAR) %>%
+library(dplyr)
+#Group_by stopped working on Tuesday night... of course. 
+#SumStat2 <- NSFG %>%
+#    group_by(CYCLE) %>%
+#  summarise(MeanAge = round(mean(AGE_R, na.rm=TRUE), digits=2),
+#            SDAge = round(sd(AGE_R, na.rm=TRUE), digits=2),
+#            MeanHG = round(mean(HIGRADE, na.rm=TRUE), digits=2),
+#           SDHG = round(sd(HIGRADE, na.rm=TRUE), digits=2))
+
+
+SumStat2013 <- NSFG %>%
+  filter(SURVEYYEAR==2013) %>%
   summarise(MeanAge = round(mean(AGE_R, na.rm=TRUE), digits=2),
             SDAge = round(sd(AGE_R, na.rm=TRUE), digits=2),
             MeanHG = round(mean(HIGRADE, na.rm=TRUE), digits=2),
             SDHG = round(sd(HIGRADE, na.rm=TRUE), digits=2))
-SumStat2 <- NSFG %>%
+SumStat2011 <- NSFG %>%
+  filter(SURVEYYEAR==2011) %>%
+  summarise(MeanAge = round(mean(AGE_R, na.rm=TRUE), digits=2),
+            SDAge = round(sd(AGE_R, na.rm=TRUE), digits=2),
+            MeanHG = round(mean(HIGRADE, na.rm=TRUE), digits=2),
+            SDHG = round(sd(HIGRADE, na.rm=TRUE), digits=2))
+SumStat2006 <- NSFG %>%
+  filter(SURVEYYEAR==2006) %>%
+  summarise(MeanAge = round(mean(AGE_R, na.rm=TRUE), digits=2),
+            SDAge = round(sd(AGE_R, na.rm=TRUE), digits=2),
+            MeanHG = round(mean(HIGRADE, na.rm=TRUE), digits=2),
+            SDHG = round(sd(HIGRADE, na.rm=TRUE), digits=2))
+SumStat2002 <- NSFG %>%
+  filter(SURVEYYEAR==2002) %>%
+  summarise(MeanAge = round(mean(AGE_R, na.rm=TRUE), digits=2),
+            SDAge = round(sd(AGE_R, na.rm=TRUE), digits=2),
+            MeanHG = round(mean(HIGRADE, na.rm=TRUE), digits=2),
+            SDHG = round(sd(HIGRADE, na.rm=TRUE), digits=2))
+SumStat1995 <- NSFG %>%
+  filter(SURVEYYEAR==1995) %>%
+  summarise(MeanAge = round(mean(AGE_R, na.rm=TRUE), digits=2),
+            SDAge = round(sd(AGE_R, na.rm=TRUE), digits=2),
+            MeanHG = round(mean(HIGRADE, na.rm=TRUE), digits=2),
+            SDHG = round(sd(HIGRADE, na.rm=TRUE), digits=2))
+SumStat1988 <- NSFG %>%
+  filter(SURVEYYEAR==1988) %>%
+  summarise(MeanAge = round(mean(AGE_R, na.rm=TRUE), digits=2),
+            SDAge = round(sd(AGE_R, na.rm=TRUE), digits=2),
+            MeanHG = round(mean(HIGRADE, na.rm=TRUE), digits=2),
+            SDHG = round(sd(HIGRADE, na.rm=TRUE), digits=2))
+SumStat1982 <- NSFG %>%
+  filter(SURVEYYEAR==1982) %>%
   summarise(MeanAge = round(mean(AGE_R, na.rm=TRUE), digits=2),
             SDAge = round(sd(AGE_R, na.rm=TRUE), digits=2),
             MeanHG = round(mean(HIGRADE, na.rm=TRUE), digits=2),
             SDHG = round(sd(HIGRADE, na.rm=TRUE), digits=2))
 
+SumStatAll <- NSFG %>%
+  summarise(MeanAge = round(mean(AGE_R, na.rm=TRUE), digits=2),
+            SDAge = round(sd(AGE_R, na.rm=TRUE), digits=2),
+            MeanHG = round(mean(HIGRADE, na.rm=TRUE), digits=2),
+            SDHG = round(sd(HIGRADE, na.rm=TRUE), digits=2))
+
+```
+```{r, include=FALSE}
 PrctHISP <- c(round(prop.table(table(NSFG1982sub$HISPANIC))*100, digits=2),
               round(prop.table(table(NSFG1988sub$HISPANIC))*100, digits=2),
               round(prop.table(table(NSFG1995sub$HISPANIC))*100, digits=2),
@@ -940,6 +1255,7 @@ PrctHISP <- c(round(prop.table(table(NSFG1982sub$HISPANIC))*100, digits=2),
               round(prop.table(table(NSFG2011sub$HISPANIC))*100, digits=2),
               round(prop.table(table(NSFG2013sub$HISPANIC))*100, digits=2),
               round(prop.table(table(NSFG$HISPANIC))*100, digits=2))
+
 PrctMinority <- c(round(prop.table(table(NSFG1982sub$RACE))*100, digits=2),
               round(prop.table(table(NSFG1988sub$RACE))*100, digits=2),
               round(prop.table(table(NSFG1995sub$RACE))*100, digits=2),
@@ -1010,17 +1326,20 @@ PrctPubAssis <- c(round(prop.table(table(NSFG1982sub$PUBASSIS))*100, digits=2),#
 #                           "Standard Deviation of High Grade"),
 #            caption = "Summary of Demographics by Survey Year")
 ```
+### Basic Demographics
+
+Below is a table of Race, Ethnicity, Mean Education, and Mean Age of each cohort the survey was completed with. While some demographics have changed drastically over the years (ie: the increase in hispanic women and the marked decrease of Black women surveyed over the years)
 
 Year of NFGS | Age | Highest Grade of Education | % Hispanic | % Black | % White| 
 ------------- | -------------|--------------|--------------|--------------|--------------
-1982 |  `r SumStat[1,2]` +/- `r SumStat[1,3]`|  `r SumStat[1,4]` +/- `r SumStat[1,5]`|  `r PrctHISP [1] `|  `r PrctMinority[1] `| `r PrctMinority[2] `
-1988 |  `r SumStat[2,2]` +/- `r SumStat[2,3]`|  `r SumStat[2,4]` +/- `r SumStat[2,5]`|  `r PrctHISP [3] `|  `r PrctMinority[4] `| `r PrctMinority[5] `
-1995 |  `r SumStat[3,2]` +/- `r SumStat[3,3]`|  `r SumStat[3,4]` +/- `r SumStat[3,5]`|  `r PrctHISP [5] `|  `r PrctMinority[7] `|`r PrctMinority[8] `
-2002  |  `r SumStat[4,2]` +/- `r SumStat[4,3]`|  `r SumStat[4,4]` +/- `r SumStat[4,5]`|  `r PrctHISP [7] `|  `r PrctMinority[10] `| `r PrctMinority[11] `
-2006-2010 |  `r SumStat[5,2]` +/- `r SumStat[5,3]`|  `r SumStat[5,4]` +/- `r SumStat[5,5]`|  `r PrctHISP [9] `|  `r PrctMinority[13] `| `r PrctMinority[14] `
-2011-2013 |  `r SumStat[6,2]` +/- `r SumStat[6,3]`|  `r SumStat[6,4]` +/- `r SumStat[6,5]`|  `r PrctHISP [11] `|  `r PrctMinority[16] `| `r PrctMinority[17] `
-2013-2015 |  `r SumStat[7,2]` +/- `r SumStat[7,3]`|  `r SumStat[7,4]` +/- `r SumStat[7,5]`|  `r PrctHISP [13] `|  `r PrctMinority[19] `| `r PrctMinority[20] `
-All Respondents |  `r SumStat2[1,1]` +/- `r SumStat2[1,2]`|  `r SumStat2[1,3]` +/- `r SumStat2[1,4]`|  `r PrctHISP [15] `|  `r PrctMinority[22] `|`r PrctMinority[23] `
+1982 |  `r SumStat1982[1]` +/- `r SumStat1982[2]`|  `r SumStat1982[3]` +/- `r SumStat1982[4]`|  `r PrctHISP [1] `|  `r PrctMinority[1] `| `r PrctMinority[2] `
+1988 |  `r SumStat1988[1]` +/- `r SumStat1988[2]`|  `r SumStat1988[3]` +/- `r SumStat1988[4]`|  `r PrctHISP [3] `|  `r PrctMinority[4] `| `r PrctMinority[5] `
+1995 |  `r SumStat1995[1]` +/- `r SumStat1995[2]`|  `r SumStat1995[3]` +/- `r SumStat1995[4]`|  `r PrctHISP [5] `|  `r PrctMinority[7] `|`r PrctMinority[8] `
+2002  |  `r SumStat2002[1]` +/- `r SumStat2002[2]`|  `r SumStat2002[3]` +/- `r SumStat2002[4]`|  `r PrctHISP [7] `|  `r PrctMinority[10] `| `r PrctMinority[11] `
+2006-2010 |  `r SumStat2006[1]` +/- `r SumStat2006[2]`|  `r SumStat2006[3]` +/- `r SumStat2006[4]`|  `r PrctHISP [9] `|  `r PrctMinority[13] `| `r PrctMinority[14] `
+2011-2013 |  `r SumStat2011[1]` +/- `r SumStat2011[2]`|  `r SumStat2011[3]` +/- `r SumStat2011[4]`|  `r PrctHISP [11] `|  `r PrctMinority[16] `| `r PrctMinority[17] `
+2013-2015 |  `r SumStat2013[1]` +/- `r SumStat2013[2]`|  `r SumStat2013[3]` +/- `r SumStat2013[4]`|  `r PrctHISP [13] `|  `r PrctMinority[19] `| `r PrctMinority[20] `
+All Respondents |  `r SumStatAll[1]` +/- `r SumStatAll[2]`|  `r SumStatAll[3]` +/- `r SumStatAll[4]`| `r PrctHISP [15] `|  `r PrctMinority[22] `|`r PrctMinority[23] `
 
 
 #### Additional Demographics
@@ -1049,12 +1368,752 @@ Year of NFGS | % Private Insured | % Medicaid Insured | % Uninsured |% Receiving
 2013-2015 | `r PrctCurrIns [13] `| `r PrctCurrIns [14] `| `r PrctCurrIns [15] `| `r PrctPubAssis [7] `| `r PrctLabor [58] `|
 All Surveys |`r PrctCurrIns [17] `| `r PrctCurrIns [18] `| `r PrctCurrIns [19] `| `r PrctPubAssis [9] `| `r PrctLabor [67] `|
 
-**_Goal 3: Visualization_** I plan on investing a great deal of time into the visualization step, since I believe that when working with so many variables, the interesting, effective dissemination of results depends on good visualization. This step will be the final week of "processing type" work before I begin writing my manuscript. Therefore, I will have functional visualizations completed before March 1^st^.  
+```{r, echo=FALSE}
+ggplot(NSFG, aes(SURVEYYEAR)) + geom_bar() +
+  facet_wrap(~ RACE) +
+       xlab("Year of NSFG Survey Initiation") +
+         ylab("Number of Respondents by Race") +
+        ggtitle("Survey Respondents by Race by Year (1=AA, 2=White, 3=Other)")
+```
 
-**_MILESTONE 2: Working Prototype_** The next milestone is due on March 22^nd^, and I will spend from March 1^st^-15^th^ working on this manuscript. 
+### Contraceptive Utilization Information
+```{r, include=FALSE, eval=FALSE}
+PrctPILL <- c(round(prop.table(table(NSFG1982sub$PILL))*100, digits=2), 
+              round(prop.table(table(NSFG1988sub$PILL))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$PILL))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$PILL))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$PILL))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$PILL))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$PILL))*100, digits=2),
+              round(prop.table(table(NSFG$PILL))*100, digits=2))
 
-**_Manuscript Rewrites_** After discussing my project with a professor to get feedback, I plan to rewrite my manuscript and edit any analysis steps and implement any suggestions to improve the visualization of the data. The analysis changes will occur from March 15^th^-April1^st^. Visualization changes will take the next week, and from April 7^th^ to the 15^th^, I will conduct the final manuscript edits.
+PrctNORPLANT <- c(#round(prop.table(table(NSFG1982sub$NORPLANT))*100, digits=2),
+              #round(prop.table(table(NSFG1988sub$NORPLANT))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$NORPLANT))*100, digits=2), #3
+              round(prop.table(table(NSFG2002sub$NORPLANT))*100, digits=2), #3
+              #round(prop.table(table(NSFG2006sub$NORPLANT))*100, digits=2),
+              #round(prop.table(table(NSFG2011sub$NORPLANT))*100, digits=2),
+              #round(prop.table(table(NSFG2013sub$NORPLANT))*100, digits=2),
+              round(prop.table(table(NSFG$NORPLANT))*100, digits=2)) #3
 
-**_MILESTONE 3: Final Manuscript_** Due Wednesday, April 19^th^.
+
+PrctCONDOM <- c(round(prop.table(table(NSFG1982sub$CONDOM))*100, digits=2), #only 2
+              round(prop.table(table(NSFG1988sub$CONDOM))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$CONDOM))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$CONDOM))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$CONDOM))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$CONDOM))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$CONDOM))*100, digits=2), #only 2
+              round(prop.table(table(NSFG$CONDOM))*100, digits=2))
+
+PrctVasec <- c(#round(prop.table(table(NSFG1982sub$VASECTMY))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$VASECTMY))*100, digits=2), #3
+              round(prop.table(table(NSFG1995sub$VASECTMY))*100, digits=2), #4
+              round(prop.table(table(NSFG2002sub$VASECTMY))*100, digits=2), #4
+              round(prop.table(table(NSFG2006sub$VASECTMY))*100, digits=2), #4
+              round(prop.table(table(NSFG2011sub$VASECTMY))*100, digits=2), #4
+              round(prop.table(table(NSFG2013sub$VASECTMY))*100, digits=2), #3
+              round(prop.table(table(NSFG$VASECTMY))*100, digits=2)) 
+
+PrctDiaph <- c(round(prop.table(table(NSFG1982sub$DIAFRAGM))*100, digits=2),#2
+              round(prop.table(table(NSFG1988sub$DIAFRAGM))*100, digits=2), #3
+              round(prop.table(table(NSFG1995sub$DIAFRAGM))*100, digits=2), #3
+              round(prop.table(table(NSFG2002sub$DIAFRAGM))*100, digits=2), #4
+              #round(prop.table(table(NSFG2006sub$DIAFRAGM))*100, digits=2),
+              #round(prop.table(table(NSFG2011sub$DIAFRAGM))*100, digits=2),
+              #round(prop.table(table(NSFG2013sub$DIAFRAGM))*100, digits=2),
+              round(prop.table(table(NSFG$DIAFRAGM))*100, digits=2))
+
+PrctDepo <- c(round(prop.table(table(NSFG1982sub$DEPOPROV))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$DEPOPROV))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$DEPOPROV))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$DEPOPROV))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$DEPOPROV))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$DEPOPROV))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$DEPOPROV))*100, digits=2),
+              round(prop.table(table(NSFG$DEPOPROV))*100, digits=2))
+
+PrctWithd <- c(round(prop.table(table(NSFG1982sub$WIDRAWAL))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$WIDRAWAL))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$WIDRAWAL))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$WIDRAWAL))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$WIDRAWAL))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$WIDRAWAL))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$WIDRAWAL))*100, digits=2),
+              round(prop.table(table(NSFG$WIDRAWAL))*100, digits=2))
+
+PrctRhythm <- c(round(prop.table(table(NSFG1982sub$RHYTHM))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$RHYTHM))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$RHYTHM))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$RHYTHM))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$RHYTHM))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$RHYTHM))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$RHYTHM))*100, digits=2),
+              round(prop.table(table(NSFG$RHYTHM))*100, digits=2))
+
+PrctSDAYCBDS <- c(round(prop.table(table(NSFG1982sub$SDAYCBDS))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$SDAYCBDS))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$SDAYCBDS))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$SDAYCBDS))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$SDAYCBDS))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$SDAYCBDS))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$SDAYCBDS))*100, digits=2),
+              round(prop.table(table(NSFG$SDAYCBDS))*100, digits=2))
+  
+PrctTemp <- c(round(prop.table(table(NSFG1982sub$TEMPSAFE))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$TEMPSAFE))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$TEMPSAFE))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$TEMPSAFE))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$TEMPSAFE))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$TEMPSAFE))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$TEMPSAFE))*100, digits=2),
+              round(prop.table(table(NSFG$TEMPSAFE))*100, digits=2))
+
+
+PrctWOCO <- c(round(prop.table(table(NSFG1982sub$WOCONDOM))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$WOCONDOM))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$WOCONDOM))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$WOCONDOM))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$WOCONDOM))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$WOCONDOM))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$WOCONDOM))*100, digits=2),
+              round(prop.table(table(NSFG$WOCONDOM))*100, digits=2))
+
+PrctFOAM <- c(round(prop.table(table(NSFG1982sub$FOAMALON))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$FOAMALON))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$FOAMALON))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$FOAMALON))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$FOAMALON))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$FOAMALON))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$FOAMALON))*100, digits=2),
+              round(prop.table(table(NSFG$FOAMALON))*100, digits=2))
+
+PrctJEL <- c(round(prop.table(table(NSFG1982sub$JELCRMAL))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$JELCRMAL))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$JELCRMAL))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$JELCRMAL))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$JELCRMAL))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$JELCRMAL))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$JELCRMAL))*100, digits=2),
+              round(prop.table(table(NSFG$JELCRMAL))*100, digits=2))
+
+PrctCERV <- c(round(prop.table(table(NSFG1982sub$CERVLCAP))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$CERVLCAP))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$CERVLCAP))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$CERVLCAP))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$CERVLCAP))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$CERVLCAP))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$CERVLCAP))*100, digits=2),
+              round(prop.table(table(NSFG$CERVLCAP))*100, digits=2))
+
+PrctSUPP <- c(round(prop.table(table(NSFG1982sub$SUPPOSIT))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$SUPPOSIT))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$SUPPOSIT))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$SUPPOSIT))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$SUPPOSIT))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$SUPPOSIT))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$SUPPOSIT))*100, digits=2),
+              round(prop.table(table(NSFG$SUPPOSIT))*100, digits=2))
+
+PrctTODAY <- c(round(prop.table(table(NSFG1982sub$TODAYSPG))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$TODAYSPG))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$TODAYSPG))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$TODAYSPG))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$TODAYSPG))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$TODAYSPG))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$TODAYSPG))*100, digits=2),
+              round(prop.table(table(NSFG$TODAYSPG))*100, digits=2))
+
+PrctIUD <- c(round(prop.table(table(NSFG1982sub$IUD))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$IUD))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$IUD))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$IUD))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$IUD))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$IUD))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$IUD))*100, digits=2),
+              round(prop.table(table(NSFG$IUD))*100, digits=2))
+
+PrctLUN <- c(round(prop.table(table(NSFG1982sub$LUNELLE))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$LUNELLE))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$LUNELLE))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$LUNELLE))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$LUNELLE))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$LUNELLE))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$LUNELLE))*100, digits=2),
+              round(prop.table(table(NSFG$LUNELLE))*100, digits=2))
+
+PrctPATCH <- c(round(prop.table(table(NSFG1982sub$PATCH))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$PATCH))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$PATCH))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$PATCH))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$PATCH))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$PATCH))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$PATCH))*100, digits=2),
+              round(prop.table(table(NSFG$PATCH))*100, digits=2))
+
+PrctRING <- c(round(prop.table(table(NSFG1982sub$RING))*100, digits=2),
+              round(prop.table(table(NSFG1988sub$RING))*100, digits=2),
+              round(prop.table(table(NSFG1995sub$RING))*100, digits=2),
+              round(prop.table(table(NSFG2002sub$RING))*100, digits=2),
+              round(prop.table(table(NSFG2006sub$RING))*100, digits=2),
+              round(prop.table(table(NSFG2011sub$RING))*100, digits=2),
+              round(prop.table(table(NSFG2013sub$RING))*100, digits=2),
+              round(prop.table(table(NSFG$RING))*100, digits=2))
+
+```
+
+```{r, include=FALSE}
+# 3-Way Frequency Table 
+Pill_table <- table(NSFG$SURVEYYEAR, NSFG$PILL)
+Pill_table1 <- data.frame(matrix(Pill_table, nrow=nrow(Pill_table)))
+dimnames(Pill_table)
+rownames(Pill_table1) <- dimnames(Pill_table)[[1]]
+Pill1 <- cbind(Pill_table1, rowSums(Pill_table1), (Pill_table1$X1 / rowSums(Pill_table)*100))
+colnames(Pill1) <- c("Has_Used_Pill", "Has_Not_Used_Pill", "Refused_Pill", "RowSum", "%UsedPill")
+#prop.table(table(NSFG$PILL))*100
+rm(Pill_table)
+rm(Pill_table1)
+
+NORPLANT_table <- table(NSFG$SURVEYYEAR, NSFG$NORPLANT) 
+NORPLANT_table1 <- data.frame(matrix(NORPLANT_table, nrow=nrow(NORPLANT_table)))
+dimnames(NORPLANT_table)
+rownames(NORPLANT_table1) <- dimnames(NORPLANT_table)[[1]]
+NORPLANT1 <- cbind(NORPLANT_table1, rowSums(NORPLANT_table1), (NORPLANT_table1$X1 / rowSums(NORPLANT_table)*100))
+colnames(NORPLANT1) <- c("Has_Used_Norplant", "Has_Not_Used_Norplant", "Refused_Norplant", "RowSum", "%UsedNorplant")
+#prop.table(table(NSFG$NORPLANT))*100
+rm(NORPLANT_table)
+rm(NORPLANT_table1)
+
+CONDOM_table <- table(NSFG$SURVEYYEAR, NSFG$CONDOM) 
+#prop.table(table(NSFG$CONDOM))*100
+CONDOM_table1 <- data.frame(matrix(CONDOM_table, nrow=nrow(CONDOM_table)))
+dimnames(CONDOM_table)
+rownames(CONDOM_table1) <- dimnames(CONDOM_table)[[1]]
+CONDOM1 <- cbind(CONDOM_table1, rowSums(CONDOM_table1), (CONDOM_table1$X1 / rowSums(CONDOM_table)*100))
+colnames(CONDOM1) <- c("Has_Used_Condoms", "Has_Not_Used_Condoms", "Refused_Condoms", "RowSum", "%UsedCondoms")
+rm(CONDOM_table)
+rm(CONDOM_table1)
+
+VASECTMY_table <- table(NSFG$SURVEYYEAR, NSFG$VASECTMY) 
+#prop.table(table(NSFG$VASECTMY))*100
+VASECTMY_table1 <- data.frame(matrix(VASECTMY_table, nrow=nrow(VASECTMY_table)))
+dimnames(VASECTMY_table)
+rownames(VASECTMY_table1) <- dimnames(VASECTMY_table)[[1]]
+VASECTMY1 <- cbind(VASECTMY_table1, rowSums(VASECTMY_table1), (VASECTMY_table1$X1 / rowSums(VASECTMY_table)*100))
+colnames(VASECTMY1) <- c("Has_Used_VASECTMY", "Has_Not_Used_VASECTMY", "Refused_VASECTMY", "DK_VASECTMY", "RowSum", "%UsedVASECTMY")
+rm(VASECTMY_table)
+rm(VASECTMY_table1)
+
+DIAPH_table <- table(NSFG$SURVEYYEAR, NSFG$DIAFRAGM) 
+#prop.table(table(NSFG$DIAFRAGM))*100
+DIAPH_table1 <- data.frame(matrix(DIAPH_table, nrow=nrow(DIAPH_table)))
+dimnames(DIAPH_table)
+rownames(DIAPH_table1) <- dimnames(DIAPH_table)[[1]]
+DIAPH1 <- cbind(DIAPH_table1, rowSums(DIAPH_table1), (DIAPH_table1$X1 / rowSums(DIAPH_table)*100))
+colnames(DIAPH1) <- c("Has_Used_DIAPH", "Has_Not_Used_DIAPH", "Refused_DIAPH", "DK_DIAPH", "RowSum", "%UsedDIAPH")
+rm(DIAPH_table)
+rm(DIAPH_table1)
+
+DEPO_table <- table(NSFG$SURVEYYEAR, NSFG$DEPOPROV) 
+#prop.table(table(NSFG$DEPOPROV))*100
+DEPO_table1 <- data.frame(matrix(DEPO_table, nrow=nrow(DEPO_table)))
+dimnames(DEPO_table)
+rownames(DEPO_table1) <- dimnames(DEPO_table)[[1]]
+DEPO1 <- cbind(DEPO_table1, rowSums(DEPO_table1), (DEPO_table1$X1 / rowSums(DEPO_table)*100))
+colnames(DEPO1) <- c("Has_Used_DEPO", "Has_Not_Used_DEPO", "Refused_DEPO", "DK_DEPO", "RowSum", "%UsedDEPO")
+rm(DEPO_table)
+rm(DEPO_table1)
+
+WID_table <- table(NSFG$SURVEYYEAR, NSFG$WIDRAWAL) 
+#prop.table(table(NSFG$WIDRAWAL))*100
+WID_table1 <- data.frame(matrix(WID_table, nrow=nrow(WID_table)))
+dimnames(WID_table)
+rownames(WID_table1) <- dimnames(WID_table)[[1]]
+WID1 <- cbind(WID_table1, rowSums(WID_table1), (WID_table1$X1 / rowSums(WID_table)*100))
+colnames(WID1) <- c("Has_Used_WID", "Has_Not_Used_WID", "Refused_WID", "DK_WID", "RowSum", "%UsedWID")
+rm(WID_table)
+rm(WID_table1)
+
+RHY_table <- table(NSFG$SURVEYYEAR, NSFG$RHYTHM) 
+#prop.table(table(NSFG$RHYTHM))*100
+RHY_table1 <- data.frame(matrix(RHY_table, nrow=nrow(RHY_table)))
+dimnames(RHY_table)
+rownames(RHY_table1) <- dimnames(RHY_table)[[1]]
+RHY1 <- cbind(RHY_table1, rowSums(RHY_table1), (RHY_table1$X1 / rowSums(RHY_table)*100))
+colnames(RHY1) <- c("Has_Used_RHY", "Has_Not_Used_RHY", "Refused_RHY", "DK_RHY", "RowSum", "%UsedRHY")
+rm(RHY_table)
+rm(RHY_table1)
+
+SDAY_table <- table(NSFG$SURVEYYEAR, NSFG$SDAYCBDS) 
+#prop.table(table(NSFG$SDAYCBDS))*100
+SDAY_table1 <- data.frame(matrix(SDAY_table, nrow=nrow(SDAY_table)))
+dimnames(SDAY_table)
+rownames(SDAY_table1) <- dimnames(SDAY_table)[[1]]
+SDAY1 <- cbind(SDAY_table1, rowSums(SDAY_table1), (SDAY_table1$X1 / rowSums(SDAY_table)*100))
+colnames(SDAY1) <- c("Has_Used_SDAY", "Has_Not_Used_SDAY", "DK_SDAY", "RowSum", "%UsedSDAY")
+rm(SDAY_table)
+rm(SDAY_table1)
+
+TEMP_table <- table(NSFG$SURVEYYEAR, NSFG$TEMPSAFE) 
+#prop.table(table(NSFG$TEMPSAFE))*100
+TEMP_table1 <- data.frame(matrix(TEMP_table, nrow=nrow(TEMP_table)))
+dimnames(TEMP_table)
+rownames(TEMP_table1) <- dimnames(TEMP_table)[[1]]
+TEMP1 <- cbind(TEMP_table1, rowSums(TEMP_table1), (TEMP_table1$X1 / rowSums(TEMP_table)*100))
+colnames(TEMP1) <- c("Has_Used_TEMP", "Has_Not_Used_TEMP", "Refused_TEMP", "DK_TEMP", "RowSum", "%UsedTEMP")
+rm(TEMP_table)
+rm(TEMP_table1)
+
+WOCO_table <- table(NSFG$SURVEYYEAR, NSFG$WOCONDOM) 
+#prop.table(table(NSFG$WOCONDOM))*100
+WOCO_table1 <- data.frame(matrix(WOCO_table, nrow=nrow(WOCO_table)))
+dimnames(WOCO_table)
+rownames(WOCO_table1) <- dimnames(WOCO_table)[[1]]
+WOCO1 <- cbind(WOCO_table1, rowSums(WOCO_table1), (WOCO_table1$X1 / rowSums(WOCO_table)*100))
+colnames(WOCO1) <- c("Has_Used_WOCO", "Has_Not_Used_WOCO", "Refused_WOCO", "RowSum", "%UsedWOCO")
+rm(WOCO_table)
+rm(WOCO_table1)
+
+FOAM_table <- table(NSFG$SURVEYYEAR, NSFG$FOAMALON) 
+#prop.table(table(NSFG$FOAMALON))*100
+FOAM_table1 <- data.frame(matrix(FOAM_table, nrow=nrow(FOAM_table)))
+dimnames(FOAM_table)
+rownames(FOAM_table1) <- dimnames(FOAM_table)[[1]]
+FOAM1 <- cbind(FOAM_table1, rowSums(FOAM_table1), (FOAM_table1$X1 / rowSums(FOAM_table)*100))
+colnames(FOAM1) <- c("Has_Used_FOAM", "Has_Not_Used_FOAM", "Refused_FOAM", "DK_FOAM", "RowSum", "%UsedFOAM")
+rm(FOAM_table)
+rm(FOAM_table1)
+
+JELL_table <- table(NSFG$SURVEYYEAR, NSFG$JELCRMAL) 
+#prop.table(table(NSFG$JELCRMAL))*100
+JELL_table1 <- data.frame(matrix(JELL_table, nrow=nrow(JELL_table)))
+dimnames(JELL_table)
+rownames(JELL_table1) <- dimnames(JELL_table)[[1]]
+JELL1 <- cbind(JELL_table1, rowSums(JELL_table1), (JELL_table1$X1 / rowSums(JELL_table)*100))
+colnames(JELL1) <- c("Has_Used_JELL", "Has_Not_Used_JELL", "Refused_JELL", "DK_JELL", "RowSum", "%UsedJELL")
+rm(JELL_table)
+rm(JELL_table1)
+
+CVC_table <- table(NSFG$SURVEYYEAR, NSFG$CERVLCAP)
+#prop.table(table(NSFG$CERVLCAP))*100
+CVC_table1 <- data.frame(matrix(CVC_table, nrow=nrow(CVC_table)))
+dimnames(CVC_table)
+rownames(CVC_table1) <- dimnames(CVC_table)[[1]]
+CVC1 <- cbind(CVC_table1, rowSums(CVC_table1), (CVC_table1$X1 / rowSums(CVC_table)*100))
+colnames(CVC1) <- c("Has_Used_CVC", "Has_Not_Used_CVC", "Refused_CVC", "RowSum", "%UsedCVC")
+rm(CVC_table)
+rm(CVC_table1)
+
+SUPP_table <- table(NSFG$SURVEYYEAR, NSFG$SUPPOSIT)
+#prop.table(table(NSFG$SUPPOSIT))*100
+SUPP_table1 <- data.frame(matrix(SUPP_table, nrow=nrow(SUPP_table)))
+dimnames(SUPP_table)
+rownames(SUPP_table1) <- dimnames(SUPP_table)[[1]]
+SUPP1 <- cbind(SUPP_table1, rowSums(SUPP_table1), (SUPP_table1$X1 / rowSums(SUPP_table)*100))
+colnames(SUPP1) <- c("Has_Used_SUPP", "Has_Not_Used_SUPP", "Refused_SUPP", "RowSum", "%UsedSUPP")
+rm(SUPP_table)
+rm(SUPP_table1)
+
+TODAY_table <- table(NSFG$SURVEYYEAR, NSFG$TODAYSPG) 
+#prop.table(table(NSFG$TODAYSPG))*100
+TODAY_table1 <- data.frame(matrix(TODAY_table, nrow=nrow(TODAY_table)))
+dimnames(TODAY_table)
+rownames(TODAY_table1) <- dimnames(TODAY_table)[[1]]
+TODAY1 <- cbind(TODAY_table1, rowSums(TODAY_table1), (TODAY_table1$X1 / rowSums(TODAY_table)*100))
+colnames(TODAY1) <- c("Has_Used_TODAY", "Has_Not_Used_TODAY", "Refused_TODAY", "DK_TODAY", "RowSum", "%UsedTODAY")
+rm(TODAY_table)
+rm(TODAY_table1)
+
+IUD_table <- table(NSFG$SURVEYYEAR, NSFG$IUD) 
+#prop.table(table(NSFG$IUD))*100
+IUD_table1 <- data.frame(matrix(IUD_table, nrow=nrow(IUD_table)))
+dimnames(IUD_table)
+rownames(IUD_table1) <- dimnames(IUD_table)[[1]]
+IUD1 <- cbind(IUD_table1, rowSums(IUD_table1), (IUD_table1$X1 / rowSums(IUD_table)*100))
+colnames(IUD1) <- c("Has_Used_IUD", "Has_Not_Used_IUD", "Refused_IUD", "DK_IUD", "RowSum", "%UsedIUD")
+rm(IUD_table)
+rm(IUD_table1)
+
+LUNE_table <- table(NSFG$SURVEYYEAR, NSFG$LUNELLE) 
+#prop.table(table(NSFG$LUNELLE))*100
+LUNE_table1 <- data.frame(matrix(LUNE_table, nrow=nrow(LUNE_table)))
+dimnames(LUNE_table)
+rownames(LUNE_table1) <- dimnames(LUNE_table)[[1]]
+LUNE1 <- cbind(LUNE_table1, rowSums(LUNE_table1), (LUNE_table1$X1 / rowSums(LUNE_table)*100))
+colnames(LUNE1) <- c("Has_Used_LUNE", "Has_Not_Used_LUNE", "Refused_LUNE", "RowSum", "%UsedLUNE")
+rm(LUNE_table)
+rm(LUNE_table1)
+
+PATCH_table <- table(NSFG$SURVEYYEAR, NSFG$PATCH) 
+#prop.table(table(NSFG$PATCH))*100
+PATCH_table1 <- data.frame(matrix(PATCH_table, nrow=nrow(PATCH_table)))
+dimnames(PATCH_table)
+rownames(PATCH_table1) <- dimnames(PATCH_table)[[1]]
+PATCH1 <- cbind(PATCH_table1, rowSums(PATCH_table1), (PATCH_table1$X1 / rowSums(PATCH_table)*100))
+colnames(PATCH1) <- c("Has_Used_PATCH", "Has_Not_Used_PATCH", "Refused_PATCH", "DK_PATCH", "RowSum", "%UsedPATCH")
+rm(PATCH_table)
+rm(PATCH_table1)
+
+RING_table <- table(NSFG$SURVEYYEAR, NSFG$RING) 
+#prop.table(table(NSFG$RING))*100
+RING_table1 <- data.frame(matrix(RING_table, nrow=nrow(RING_table)))
+dimnames(RING_table)
+rownames(RING_table1) <- dimnames(RING_table)[[1]]
+RING1 <- cbind(RING_table1, rowSums(RING_table1), (RING_table1$X1 / rowSums(RING_table)*100))
+colnames(RING1) <- c("Has_Used_RING", "Has_Not_Used_RING", "Refused_RING", "DK_RING", "RowSum", "%UsedRING")
+rm(RING_table)
+rm(RING_table1)
+
+```
+
+```{r, include=FALSE}
+fin1<- merge.data.frame(Pill1$`%UsedPill`, CONDOM1$`%UsedCondoms`, by="row.names", all=TRUE)
+colnames(fin1) <- c("rownum", "prctPill", "prctCondom")
+
+fin2<- merge.data.frame(IUD1$`%UsedIUD`, WID1$`%UsedWID`, by="row.names", all=TRUE)
+colnames(fin2) <- c("rownum", "prctIUD", "prctWithdrawal")
+
+fin3<- merge.data.frame(RHY1$`%UsedRHY`, TEMP1$`%UsedTEMP`, by="row.names", all=TRUE)
+colnames(fin3) <- c("rownum", "prctRhythm", "prctNFP")
+
+fin4<- merge.data.frame(PATCH1$`%UsedPATCH`, RING1$`%UsedRING`, by="row.names", all=TRUE)
+colnames(fin4) <- c("rownum", "prctPatch", "prctRing")
+
+fin12<- merge.data.frame(fin1, fin2, by="rownum", all=TRUE)
+colnames(fin12) <- c("rownum", "prctPill", "prctCondom", "prctIUD", "prctWithdrawal")
+
+fin34<- merge.data.frame(fin3, fin4, by="rownum", all=TRUE)
+colnames(fin34) <- c("rownum", "prctRhythm", "prctNFP", "prctPatch", "prctRing")
+
+fin<- merge.data.frame(fin12, fin34, by="rownum", all=TRUE)
+colnames(fin) <- c("Year", "prctPill", "prctCondom", "prctIUD", "prctWithdrawal", "prctRhythm", "prctNFP", "prctPatch", "prctRing")
+
+fin$Year[fin$Year==1] <- 1982
+fin$Year[fin$Year==2] <- 1988
+fin$Year[fin$Year==3] <- 1995
+fin$Year[fin$Year==4] <- 2002
+fin$Year[fin$Year==5] <- 2006
+fin$Year[fin$Year==6] <- 2011
+fin$Year[fin$Year==7] <- 2013
+
+rm(fin1, fin2, fin3, fin4, fin12, fin34)
+```
+
+Below is a selection of contraception methods and the percentage of women in each survey who *have ever* tried that method.
+
+Year of NFGS | Pill  | Condom  | IUD  | Withdrawal | Rhythm | NFP | Patch | Ring |   
+------------- | ------- |------- |------- |------- |------- |------- |------- |------- |
+1982| `r Pill1[1,5] `  | `r CONDOM1[1,5] `| `r IUD1[1,6] `| `r WID1[1,6] `| `r RHY1[1,6] `| `r TEMP1[1,6] `| `r PATCH1[1,6] `| `r RING1[1,6] `
+1988| `r Pill1[2,5] `  | `r CONDOM1[2,5] `| `r IUD1[2,6] `| `r WID1[2,6] `| `r RHY1[2,6] `| `r TEMP1[2,6] `| `r PATCH1[2,6] `| `r RING1[2,6] `
+1995| `r Pill1[3,5] `  | `r CONDOM1[3,5] `| `r IUD1[3,6] `| `r WID1[3,6] `| `r RHY1[3,6] `| `r TEMP1[3,6] `| `r PATCH1[3,6] `| `r RING1[3,6] `
+2002| `r Pill1[4,5] `  | `r CONDOM1[4,5] `| `r IUD1[4,6] `| `r WID1[4,6] `| `r RHY1[4,6] `| `r TEMP1[4,6] `| `r PATCH1[4,6] `| `r RING1[4,6] `
+2006-2010| `r Pill1[5,5] `  | `r CONDOM1[5,5] `| `r IUD1[5,6] `| `r WID1[5,6] `| `r RHY1[5,6] `| `r TEMP1[5,6] `| `r PATCH1[5,6] `| `r RING1[5,6] `
+2011-2013| `r Pill1[6,5] `  | `r CONDOM1[6,5] `| `r IUD1[6,6] `| `r WID1[6,6] `| `r RHY1[6,6] `| `r TEMP1[6,6] `| `r PATCH1[6,6] `| `r RING1[6,6] `
+2013-2015| `r Pill1[7,5] `  | `r CONDOM1[7,5] `| `r IUD1[7,6] `| `r WID1[7,6] `| `r RHY1[7,6] `| `r TEMP1[7,6] `| `r PATCH1[7,6] `| `r RING1[7,6] `
+
+
+# Data Visualizations
+
+These graphs are visualizations of the current contraceptive method utilized by women in this survey. 
+
+GGPlot was utilized in the making of all visualizations, but there are clear ways to improve these plots. The addition of animation would alleviate the difficulty of seeing certain variables within the graphs. Due to the amount of time required to recode variables, I was not able to put as much time into visualizations as I would have liked. Ideally, the final stage of the project would allow me to:
+* Complete Contraceptive*Demographic analysis with remaining variables
+* Follow a tutorial on animation and attempt to recreate within this dataset. 
+* Make a widget to allow a viewer to more easily flip between different variables being used in the graphics.
+
+The recoding and reformatting of the datasets was the most time consuming part of this project, thus far. My methods changed with each recode and rearrangement of data, and I've _finally_ figured out a quick way to generate relevant counts/percentages using cross_tab and insert as a variable into a dataset (since I was unable to coerce the crosstabbed data into a dataframe).
+
+```{r, echo=FALSE}
+#k <- ggplot(NSFG, aes(SURVEYYEAR, fill=Method))
+#k + geom_bar()
+#qplot(SURVEYYEAR, data=NSFG, geom="bar")
+qplot(SURVEYYEAR, data=NSFG, geom="bar", fill=Method) +
+         theme(legend.position="bottom")+
+       xlab("Year of NSFG Survey Initiation") +
+         ylab("Frequency of Response") +
+        ggtitle("Contraceptive Utilization by Survey Year")
+  
+#ggplot(NSFG, aes(SURVEYYEAR, fill=Method)) + geom_bar()
+
+ggplot(NSFG, aes(SURVEYYEAR)) + geom_bar() +
+  facet_wrap(~ Method)+
+       xlab("Year of NSFG Survey Initiation") +
+        ggtitle("Utilization of Specific Methods Over NSFG Surveys")
+
+#ggplot(NSFG, aes(SURVEYYEAR)) +
+#  geom_freqpoly(aes(group = Method, colour = CurrMethod))
+
+#ggplot(NSFG, aes(SURVEYYEAR, fill=Method)) + geom_bar(position="dodge")
+#ggplot(NSFG, aes(SURVEYYEAR, fill=Method)) + geom_bar() +
+#  facet_grid(. ~ Method)
+
+#Would like to figure out how to print as percentages, rather than frequencies
+#NSFG %>% 
+#  #select(sex, duration, piq) %>%
+#  filter(Method) %>%
+#  ggplot(aes(x=SURVEYYEAR)) +
+#  geom_bar() +
+#  qplot(factor(SURVEYYEAR), geom="bar", fill=factor(Method))
+#  xlab("NSFG Survey Year")+
+#  ylab("Currently Using No Contraception")  
+
+```
+```{r, eval=FALSE, include=FALSE}
+NSFG %>% 
+  #select(sex, duration, piq) %>%
+  filter(CurrMethod==3) %>%
+  ggplot(aes(x=SURVEYYEAR)) +
+  geom_bar() +
+  xlab("NSFG Survey Year")+
+  ylab("Currently Using Birth Control Pills")  
+NSFG %>% 
+  #select(sex, duration, piq) %>%
+  filter(CurrMethod==1) %>%
+  ggplot(aes(x=SURVEYYEAR)) +
+  geom_bar() +
+  xlab("NSFG Survey Year")+
+  ylab("Currently Using No Contraception")  
+NSFG %>% 
+  #select(sex, duration, piq) %>%
+  filter(CurrMethod==1) %>%
+  ggplot(aes(x=SURVEYYEAR)) +
+  geom_bar() +
+  xlab("NSFG Survey Year")+
+  ylab("Currently Using No Contraception")  
+NSFG %>% 
+  #select(sex, duration, piq) %>%
+  filter(CurrMethod==1) %>%
+  ggplot(aes(x=SURVEYYEAR)) +
+  geom_bar() +
+  xlab("NSFG Survey Year")+
+  ylab("Currently Using No Contraception")  
+NSFG %>% 
+  #select(sex, duration, piq) %>%
+  filter(CurrMethod==1) %>%
+  ggplot(aes(x=SURVEYYEAR)) +
+  geom_bar() +
+  xlab("NSFG Survey Year")+
+  ylab("Currently Using No Contraception")  
+NSFG %>% 
+  #select(sex, duration, piq) %>%
+  filter(CurrMethod==1) %>%
+  ggplot(aes(x=SURVEYYEAR)) +
+  geom_bar() +
+  xlab("NSFG Survey Year")+
+  ylab("Currently Using No Contraception")  
+NSFG %>% 
+  #select(sex, duration, piq) %>%
+  filter(CurrMethod==1) %>%
+  ggplot(aes(x=SURVEYYEAR)) +
+  geom_bar() +
+  xlab("NSFG Survey Year")+
+  ylab("Currently Using No Contraception")  
+NSFG %>% 
+  #select(sex, duration, piq) %>%
+  filter(CurrMethod==1) %>%
+  ggplot(aes(x=SURVEYYEAR)) +
+  geom_bar() +
+  xlab("NSFG Survey Year")+
+  ylab("Currently Using No Contraception")  
+NSFG %>% 
+  #select(sex, duration, piq) %>%
+  filter(CurrMethod==1) %>%
+  ggplot(aes(x=SURVEYYEAR)) +
+  geom_bar() +
+  xlab("NSFG Survey Year")+
+  ylab("Currently Using No Contraception")  
+NSFG %>% 
+  #select(sex, duration, piq) %>%
+  filter(CurrMethod==1) %>%
+  ggplot(aes(x=SURVEYYEAR)) +
+  geom_bar() +
+  xlab("NSFG Survey Year")+
+  ylab("Currently Using No Contraception")  
+NSFG %>% 
+  #select(sex, duration, piq) %>%
+  filter(CurrMethod==1) %>%
+  ggplot(aes(x=SURVEYYEAR)) +
+  geom_bar() +
+  xlab("NSFG Survey Year")+
+  ylab("Currently Using No Contraception")  
+NSFG %>% 
+  #select(sex, duration, piq) %>%
+  filter(CurrMethod==1) %>%
+  ggplot(aes(x=SURVEYYEAR)) +
+  geom_bar() +
+  xlab("NSFG Survey Year")+
+  ylab("Currently Using No Contraception")  
+NSFG %>% 
+  #select(sex, duration, piq) %>%
+  filter(CurrMethod==1) %>%
+  ggplot(aes(x=SURVEYYEAR)) +
+  geom_bar() +
+  xlab("NSFG Survey Year")+
+  ylab("Currently Using No Contraception")  
+NSFG %>% 
+  #select(sex, duration, piq) %>%
+  filter(CurrMethod==1) %>%
+  ggplot(aes(x=SURVEYYEAR)) +
+  geom_bar() +
+  xlab("NSFG Survey Year")+
+  ylab("Currently Using No Contraception") 
+```
+```{r, eval=FALSE, include=FALSE}
+#First attempt at recode to percent
+mytable1$PrctNoMeth<-(mytable1[20]/ mytable1$rowtot) *100
+mytable1$PrctPills<-(mytable1[1] / mytable1$rowtot) *100
+mytable1$PrctCondom<-(mytable1[4] / mytable1$rowtot) *100
+mytable1$PrctVasec<-(mytable1[24] / mytable1$rowtot) *100
+mytable1$PrctFemSter<-(mytable1[12] / mytable1$rowtot) *100
+mytable1$PrctWithdrawal<-(mytable1[31] / mytable1$rowtot) *100
+mytable1$PrctDepo<-(mytable1[5] / mytable1$rowtot) *100
+mytable1$PrctHormImpl<-(mytable1[14] / mytable1$rowtot) *100
+mytable1$PrctRhythm<-(mytable1[2] / mytable1$rowtot) *100
+mytable1$PrctNFP<-(mytable1[28] / mytable1$rowtot) *100
+mytable1$PrctDiaphragm<-(mytable1[6] / mytable1$rowtot) *100
+mytable1$PrctFemCon<-(mytable1[10] / mytable1$rowtot) *100
+mytable1$PrctFoam<-(mytable1[13] / mytable1$rowtot) *100
+mytable1$PrctJelly<-(mytable1[16] / mytable1$rowtot) *100
+mytable1$PrctCervicalCap<-(mytable1[3] / mytable1$rowtot) *100
+mytable1$PrctSuppository<-(mytable1[29] / mytable1$rowtot) *100
+mytable1$PrctTodaySponge<-(mytable1[30] / mytable1$rowtot) *100
+mytable1$PrctIUD<-(mytable1[15] / mytable1$rowtot) *100
+mytable1$PrctEmergContracep<-(mytable1[9] / mytable1$rowtot) *100
+mytable1$PrctOther<-(mytable1[22] / mytable1$rowtot) *100
+mytable1$PrctFemaleSterile<-(mytable1[11] / mytable1$rowtot) *100
+mytable1$PrctMaleSterile<-(mytable1[18] / mytable1$rowtot) *100
+mytable1$PrctLunelle<-(mytable1[17] / mytable1$rowtot) *100
+mytable1$PrctPatch<-(mytable1[25] / mytable1$rowtot) *100
+mytable1$PrctRing<-(mytable1[27] / mytable1$rowtot) *100
+mytable1$PrctManSterile<-(mytable1[23] / mytable1$rowtot) *100
+mytable1$PrctOtherSterile<-(mytable1[19] / mytable1$rowtot) *100
+mytable1$PrctDouching<-(mytable1[8] / mytable1$rowtot) *100
+mytable1$PrctNotAsked<-(mytable1[21] / mytable1$rowtot) *100
+mytable1$PrctRefused<-(mytable1[26] / mytable1$rowtot) *100
+mytable1$PrctDontKnow<-(mytable1[7] / mytable1$rowtot) *100
+
+```
+### Basic Year By Current ontraceptive Method Use Plots
+```{r, echo=FALSE}
+mytable <- table(NSFG$SURVEYYEAR, NSFG$Method) 
+mytable1 <- data.frame(matrix(mytable, nrow=nrow(mytable)))
+colnames(mytable1) <- c(dimnames(mytable)[[2]])
+rownames(mytable1) <- dimnames(mytable)[[1]]
+mytable1$year <- c(1982,1988,1995,2002,2006,2011,2013)
+mytable1$rowtot<-rowSums(mytable1)
+
+mytable1_long <- gather(mytable1, ContMeth, Users, BirthControlPills:Withdrawal, factor_key=TRUE)
+
+mytable1_long$Percent<- round(((mytable1_long$Users/mytable1_long$rowtot)*100), digits=2)
+```
+```{r, echo=FALSE}
+#attempting more stacked plots
+#NOTE: these graphs are printing in pink and teal, not red and green
+stacked <- ggplot() + 
+      geom_bar(aes(y = mytable1_long$Percent, x = year, 
+                   fill = mytable1_long$ContMeth), data = mytable1_long,
+                           stat="identity") 
+
+mytable1_long<-ddply(mytable1_long, .(year), transform, pos = sum(Percent)- cumsum(Percent) + (0.5 *Percent))
+
+mytable1_long$pos[mytable1_long$Percent < 8 ] <- NA
+
+stacked + geom_text(data=mytable1_long, aes(x = year, y = pos,
+                                             label = paste0(mytable1_long$Percent,"%")), size=4)         +  theme(legend.position="bottom") +
+       xlab("Year of NSFG Survey Initiation") +
+         ylab("Percentage of Respondents") +
+        ggtitle("Contraceptive Utilization by Year (%)")
+
+```
+
+### Basic Year By Current Contraceptive Method By Race
+```{r, echo=FALSE}
+source("http://pcwww.liv.ac.uk/~william/R/crosstab.r")
+demotable <- crosstab(NSFG, row.vars = c("SURVEYYEAR"), col.vars = "RACE", type = "f")  #By default addmargins=TRUE
+#demotable1 <- print.crosstab(demotable)
+
+#pull out race data
+NSFGracesub<- data.frame(NSFG$SURVEYYEAR, NSFG$Method, NSFG$RACE)
+colnames(NSFGracesub) <- c("Year", "Method", "Race")
+
+###CrossTab to get frequencies
+NSFGracesubtable <- as.data.frame(table(NSFGracesub))
+
+######RECODE YEAR TOTALS########
+NSFGracesubtable$YearTot[NSFGracesubtable$Year == 1982] <- 8707
+NSFGracesubtable$YearTot[NSFGracesubtable$Year == 1988] <- 8777
+NSFGracesubtable$YearTot[NSFGracesubtable$Year == 1995] <- 11332
+NSFGracesubtable$YearTot[NSFGracesubtable$Year == 2002] <- 8765
+NSFGracesubtable$YearTot[NSFGracesubtable$Year == 2006] <- 12785
+NSFGracesubtable$YearTot[NSFGracesubtable$Year == 2011] <- 6986
+NSFGracesubtable$YearTot[NSFGracesubtable$Year == 2013] <- 7016
+
+######RECODE YEAR*RACE TOTALS########
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 1 & NSFGracesubtable$Year == 1982] <- demotable$crosstab[1,1]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 1 & NSFGracesubtable$Year == 1988] <- demotable$crosstab[2,1]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 1 & NSFGracesubtable$Year == 1995] <- demotable$crosstab[3,1]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 1 & NSFGracesubtable$Year == 2002] <- demotable$crosstab[4,1]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 1 & NSFGracesubtable$Year == 2006] <- demotable$crosstab[5,1]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 1 & NSFGracesubtable$Year == 2011] <- demotable$crosstab[6,1]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 1 & NSFGracesubtable$Year == 2013] <- demotable$crosstab[7,1]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 2 & NSFGracesubtable$Year == 1982] <- demotable$crosstab[1,2]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 2 & NSFGracesubtable$Year == 1988] <- demotable$crosstab[2,2]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 2 & NSFGracesubtable$Year == 1995] <- demotable$crosstab[3,2]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 2 & NSFGracesubtable$Year == 2002] <- demotable$crosstab[4,2]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 2 & NSFGracesubtable$Year == 2006] <- demotable$crosstab[5,2]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 2 & NSFGracesubtable$Year == 2011] <- demotable$crosstab[6,2]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 2 & NSFGracesubtable$Year == 2013] <- demotable$crosstab[7,2]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 3 & NSFGracesubtable$Year == 1982] <- demotable$crosstab[1,3]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 3 & NSFGracesubtable$Year == 1988] <- demotable$crosstab[2,3]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 3 & NSFGracesubtable$Year == 1995] <- demotable$crosstab[3,3]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 3 & NSFGracesubtable$Year == 2002] <- demotable$crosstab[4,3]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 3 & NSFGracesubtable$Year == 2006] <- demotable$crosstab[5,3]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 3 & NSFGracesubtable$Year == 2011] <- demotable$crosstab[6,3]
+NSFGracesubtable$RaceYrTot[NSFGracesubtable$Race == 3 & NSFGracesubtable$Year == 2013] <- demotable$crosstab[7,3]
+
+NSFGracesubtable$RacePercent<- round(((NSFGracesubtable$Freq/NSFGracesubtable$RaceYrTot)*100), digits=2)
+
+```
+```{r, echo=FALSE}
+#attempting more stacked plots
+
+NSFGracesubtable <- ddply(NSFGracesubtable, .(Year),
+                     transform, pos = sum(RacePercent)- cumsum(RacePercent) + (0.5 *RacePercent))
+
+
+NSFGracesubtable$pos[NSFGracesubtable$RacePercent < 8 ] <- NA
+
+#ggplot() +  theme(legend.position="bottom")+ 
+#      geom_bar(aes(y = NSFGracesubtable$RacePercent, x = Year, 
+#                   fill = NSFGracesubtable$Method), data = NSFGracesubtable,
+#                           stat="identity")
+
+ggplot() + 
+      geom_bar(aes(y = NSFGracesubtable$RacePercent, x = Year, 
+                   fill = NSFGracesubtable$Method), data = NSFGracesubtable,
+                           stat="identity") +
+    theme(legend.position="bottom") +
+      facet_wrap(~ Race)+
+       xlab("Year of NSFG Survey Initiation") +
+         ylab("% of Respondents Utilizing Method") +
+        ggtitle("Contraceptive Utilization by Race by Year (1=AA, 2=White, 3=Other)")
+
+ggplot() + 
+      geom_bar(aes(y = NSFGracesubtable$RacePercent, x = Race, 
+                   fill = NSFGracesubtable$Method), data = NSFGracesubtable,
+                           stat="identity") +
+      theme(legend.position="bottom") +
+      facet_wrap(~ Year)+
+       xlab("Year of NSFG Survey Initiation * Race of Respondent (1=AA, 2=White, 3=Other)") +
+         ylab("% of Respondents Utilizing Method") +
+        ggtitle("Contraceptive Utilization by Year by Race")
+```
+```{r, echo=FALSE}
+#ggplot(mytable1_long, aes(year, fill = )) +
+#  geom_bar(position = "stack")
+```
+
+
+
 
 

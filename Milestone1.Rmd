@@ -1,13 +1,19 @@
 ---
-title: 'Milestone 1: CDC''s National Survey of Family Growth'
+title: "Milestone 1: CDC's National Survey of Family Growth"
 author: "Julianne; Julianne.Ammirati@emory.edu"
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 output:
-  github_document: default
-  html_document: default
   pdf_document: default
+  html_document: default
+  github_document: default
   word_document: default
 ---
+```{r, }
+# loading tidyverse and haven
+library(tidyverse)
+library(haven)
+library(shiny)
+```
 #### The code used to generate this report is available from my GitHub Account:    
 [https://github.com/JulianneA/N741_Milestone1](https://github.com/JulianneA/N741_Milestone1)
 
@@ -47,44 +53,34 @@ dm "dexport new 'H:\SAS 9.4 Temporary Files\2013_2015_FemRespData.csv' ";
 I attempted this process with the most recent NSFG data (2013-2015), and was successful. This was a particularly arduous way of reformatting the dataset, but I don't yet trust my R-abilities to import the .SAS setup file and the dat file without destroying it. Any guidance on this would be appreciated. 
 
 Note: To save space, all R-chunk code in the markdown has been printed to PDF but eval has been set to FALSE, so no output is produced.
-```{r, eval=FALSE}
-# loading tidyverse and haven
-library(tidyverse)
-library(haven)
-
+```{r, echo=FALSE}
 # read in the comma delimited (CSV) formatted dataset
 # **NOTE**: This dataset has the column names as the 1st row of the file thanks to SAS gymnastics
 NSFG2013 <- read_csv("2013_2015_FemRespData.csv", col_names=TRUE)
-```
-```{r, eval=FALSE, echo=FALSE}
-#sum(NSFG2013$PILL==0)
-#sum(NSFG2013$PILL==1)
-#sum(NSFG2013$PILL==5)
-#sum(NSFG2013$PILL==8)
-#sum(NSFG2013$CONSTAT1==01)
-#sum(NSFG2013$CONSTAT1==03)
-#sum(NSFG2013$CONSTAT1==10)
-#sum(NSFG2013$CONSTAT1==06)
-#sum(NSFG2013$CONSTAT1==07)
-#sum(NSFG2013$CONSTAT1==12)
 ```
 Following my initial success, I repeated this process with the 2006-2010 and 2011-2013 datasets, and continued to download the .dat and .SAS files for the previous six cycles. The first six NSFG cycles (1973-2002) are much less standardized in their data structure and SAS program setup file syntax. Thus far, I've only imported/re-exported the 1995 dataset as a .csv file.
 
 At this point, I'll need to append the respondent data for each of the datasets that I am able to convert to csv to the current 2013-2015 file. Prior to appending the new cases to the current dataset, each individual csv file will need to be cleaned to remove variables that I do not intend to analyze. The datasets are large on their own (ie: 2013-2015 has 5699 cases and 3207 variables), but they are fairly sparse. While I would ideally merge the datasets prior to the removal of variables from each to allow me to more easily expand my analysis in the future, I am unsure whether my computer could (happily) handle 4 decades of NSFG data. Below is information regarding the 9 NSFG surveys and their pre-processing status. 
 
-```{r, eval=FALSE}
+```{r, echo=FALSE}
 NSFG2011 <- read_csv("2011_2013_FemRespData.csv", col_names=TRUE)
 NSFG2006 <- read_csv("2006_2010_FemRespData.csv", col_names=TRUE)
 NSFG1995 <- read_csv("1995_FemRespData.csv", col_names=TRUE)
 ```
+```{r, echo=FALSE}
+length(NSFG2013$CONSTAT1)
+length(NSFG2011$CONSTAT1)
+length(NSFG2006$CASEID)
+length(NSFG1995$CASEID)
+```
 
 Year of NFGS | Number of Respondents | Notes
 ------------- | -------------|--------------
-2013-2015 | 5,699  | This was the first file imported as a CSV.
-2011-2013 | 5,601      | Imported as CSV.
-2006-2010 |  12,279     | Imported as CSV.
+2013-2015 | `r length(NSFG2013$CONSTAT1)`  | This was the first file imported as a CSV.
+2011-2013 | `r length(NSFG2011$CONSTAT1)`       | Imported as CSV.
+2006-2010 |  `r length(NSFG2006$CASEID)`      | Imported as CSV.
 2002 |       | Cycle 6, 3 SAS setup files that will take more time to work through.
-1995 |  10,847     | Cycle 5, Imported as CSV.
+1995 |  `r length(NSFG1995$CASEID)`     | Cycle 5, Imported as CSV.
 1988 |       | Cycle 4
 1982 |       | Cycle 3
 1976 |       | Cycle 2
