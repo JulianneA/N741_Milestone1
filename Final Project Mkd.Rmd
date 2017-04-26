@@ -29,8 +29,8 @@ library(reshape2)
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-# The National Family Growth Survey (NSFG)
-Dating back to 1973, the CDC has been surveying women regarding their sexual and reproductive health using a cycle-standardized National Family Growth Survey Interview. The most recent iteration of the survey occurred in 2015, and this survey marks the ninth cycle of data to be collected since the project's inception. Over the course of this project, over 76,000 female respondents have been surveyed on items including demographics, contraceptive use, pregnancy history and outcomes, and sexual education history. The information collected under this survey has been used by the U.S. Department of Health and Human Services to direct funding and plan the implementation of health services throughout the country [1].
+# The National Survey of Family Growth (NSFG)
+Dating back to 1973, the CDC has been surveying women regarding their sexual and reproductive health using a cycle-standardized National Survey of Family Growth Interview. The most recent iteration of the survey occurred in 2015, and this survey marks the ninth cycle of data to be collected since the project's inception. Over the course of this project, over 76,000 female respondents have been surveyed on items including demographics, contraceptive use, pregnancy history and outcomes, and sexual education history. The information collected under this survey has been used by the U.S. Department of Health and Human Services to direct funding and plan the implementation of health services throughout the country [1].
 
 _Note: Cycles 1-6 are officially referred to a cycle number, but surveys from 2006-present are solely referred to by their year of collection. For the purposes of this project, these three surveys will be referred to as Cycles 7-9._
 
