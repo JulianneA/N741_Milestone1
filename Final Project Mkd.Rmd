@@ -888,7 +888,7 @@ CONDOM_table1 <- data.frame(matrix(CONDOM_table, nrow=nrow(CONDOM_table)))
 dimnames(CONDOM_table)
 rownames(CONDOM_table1) <- dimnames(CONDOM_table)[[1]]
 CONDOM1 <- cbind(CONDOM_table1, rowSums(CONDOM_table1), (CONDOM_table1$X1 / rowSums(CONDOM_table)*100))
-colnames(CONDOM1) <- c("Has_Used_Condoms", "Has_Not_Used_Condoms", "Refused_Condoms", "RowSum", "%UsedCondoms")
+colnames(CONDOM1) <- c("Has_Used_Condoms", "Has_Not_Used_Condoms", "Refused_Condoms", "", "RowSum", "%UsedCondoms")
 rm(CONDOM_table)
 rm(CONDOM_table1)
 
@@ -1101,13 +1101,13 @@ Below is a selection of contraception methods and the percentage of women in eac
 
 Year of NFGS | Pill  | Condom  | IUD  | Withdrawal | Rhythm | NFP | Patch | Ring |   
 ------------- | ------- |------- |------- |------- |------- |------- |------- |------- |
-1982| `r round(Pill1[1,5], digits=2) `  | `r round(CONDOM1[1,5], digits=2) `| `r round(IUD1[1,6], digits=2) `| `r round(WID1[1,6], digits=2) `| `r round(RHY1[1,6], digits=2) `| `r round(TEMP1[1,6], digits=2) `| `r round(PATCH1[1,6], digits=2) `| `r round(RING1[1,6], digits=2) `
-1988| `r round(Pill1[2,5], digits=2) `  | `r round(CONDOM1[2,5], digits=2) `| `r round(IUD1[2,6], digits=2) `| `r round(WID1[2,6], digits=2) `| `r round(RHY1[2,6], digits=2) `| `r round(TEMP1[2,6], digits=2) `| `r round(PATCH1[2,6], digits=2) `| `r round(RING1[2,6], digits=2) `
-1995| `r round(Pill1[3,5], digits=2) `  | `r round(CONDOM1[3,5], digits=2) `| `r round(IUD1[3,6], digits=2) `| `r round(WID1[3,6], digits=2) `| `r round(RHY1[3,6], digits=2) `| `r round(TEMP1[3,6], digits=2) `| `r round(PATCH1[3,6], digits=2) `| `r round(RING1[3,6], digits=2) `
-2002| `r round(Pill1[4,5], digits=2) `  | `r round(CONDOM1[4,5], digits=2) `| `r round(IUD1[4,6], digits=2) `| `r round(WID1[4,6], digits=2) `| `r round(RHY1[4,6], digits=2) `| `r round(TEMP1[4,6], digits=2) `| `r round(PATCH1[4,6], digits=2) `| `r round(RING1[4,6], digits=2) `
-2006-2010| `r round(Pill1[5,5], digits=2) `  | `r round(CONDOM1[5,5], digits=2) `| `r round(IUD1[5,6], digits=2) `| `r round(WID1[5,6], digits=2) `| `r round(RHY1[5,6], digits=2) `| `r round(TEMP1[5,6], digits=2) `| `r round(PATCH1[5,6], digits=2) `| `r round(RING1[5,6], digits=2) `
-2011-2013| `r round(Pill1[6,5], digits=2) `  | `r round(CONDOM1[6,5], digits=2) `| `r round(IUD1[6,6], digits=2) `| `r round(WID1[6,6], digits=2) `| `r round(RHY1[6,6], digits=2) `| `r round(TEMP1[6,6], digits=2) `| `r round(PATCH1[6,6], digits=2) `| `r round(RING1[6,6], digits=2) `
-2013-2015| `r round(Pill1[7,5], digits=2) `  | `r round(CONDOM1[7,5], digits=2) `| `r round(IUD1[7,6], digits=2) `| `r round(WID1[7,6], digits=2) `| `r round(RHY1[7,6], digits=2) `| `r round(TEMP1[7,6], digits=2) `| `r round(PATCH1[7,6], digits=2) `| `r round(RING1[7,6], digits=2) `
+1982| `r round(Pill1[1,5], digits=2) `  | `r round(CONDOM1[1,6], digits=2) `| `r round(IUD1[1,6], digits=2) `| `r round(WID1[1,6], digits=2) `| `r round(RHY1[1,6], digits=2) `| `r round(TEMP1[1,6], digits=2) `| `r round(PATCH1[1,6], digits=2) `| `r round(RING1[1,6], digits=2) `
+1988| `r round(Pill1[2,5], digits=2) `  | `r round(CONDOM1[2,6], digits=2) `| `r round(IUD1[2,6], digits=2) `| `r round(WID1[2,6], digits=2) `| `r round(RHY1[2,6], digits=2) `| `r round(TEMP1[2,6], digits=2) `| `r round(PATCH1[2,6], digits=2) `| `r round(RING1[2,6], digits=2) `
+1995| `r round(Pill1[3,5], digits=2) `  | `r round(CONDOM1[3,6], digits=2) `| `r round(IUD1[3,6], digits=2) `| `r round(WID1[3,6], digits=2) `| `r round(RHY1[3,6], digits=2) `| `r round(TEMP1[3,6], digits=2) `| `r round(PATCH1[3,6], digits=2) `| `r round(RING1[3,6], digits=2) `
+2002| `r round(Pill1[4,5], digits=2) `  | `r round(CONDOM1[4,6], digits=2) `| `r round(IUD1[4,6], digits=2) `| `r round(WID1[4,6], digits=2) `| `r round(RHY1[4,6], digits=2) `| `r round(TEMP1[4,6], digits=2) `| `r round(PATCH1[4,6], digits=2) `| `r round(RING1[4,6], digits=2) `
+2006-2010| `r round(Pill1[5,5], digits=2) `  | `r round(CONDOM1[5,6], digits=2) `| `r round(IUD1[5,6], digits=2) `| `r round(WID1[5,6], digits=2) `| `r round(RHY1[5,6], digits=2) `| `r round(TEMP1[5,6], digits=2) `| `r round(PATCH1[5,6], digits=2) `| `r round(RING1[5,6], digits=2) `
+2011-2013| `r round(Pill1[6,5], digits=2) `  | `r round(CONDOM1[6,6], digits=2) `| `r round(IUD1[6,6], digits=2) `| `r round(WID1[6,6], digits=2) `| `r round(RHY1[6,6], digits=2) `| `r round(TEMP1[6,6], digits=2) `| `r round(PATCH1[6,6], digits=2) `| `r round(RING1[6,6], digits=2) `
+2013-2015| `r round(Pill1[7,5], digits=2) `  | `r round(CONDOM1[7,6], digits=2) `| `r round(IUD1[7,6], digits=2) `| `r round(WID1[7,6], digits=2) `| `r round(RHY1[7,6], digits=2) `| `r round(TEMP1[7,6], digits=2) `| `r round(PATCH1[7,6], digits=2) `| `r round(RING1[7,6], digits=2) `
 
 # Data Visualization
 These graphs are visualizations of the current contraceptive method utilized by women in this survey. 
