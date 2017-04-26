@@ -26,6 +26,8 @@ library(reshape2)
 #### The code used to generate this report is available from my GitHub Account:    
 [https://github.com/JulianneA/N741_Milestone1](https://github.com/JulianneA/N741_Milestone1)
 
+Please Note: The CDC required a data use agreement to obtain .dat files, so data will not be uploaded to github. They are available to download from the CDC websites cited in the references section.
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
