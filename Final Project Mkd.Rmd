@@ -1,5 +1,5 @@
 ---
-title: 'Longitudinal Study of CDC NSFG Data 1973-2015: Results, Lessons Learned, and
+title: 'Investigation of the CDC’s NSFG Data 1973-2015: Results, Lessons Learned, and
   Future Directions'
 author: "Julianne; Julianne.Ammirati@emory.edu"
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
